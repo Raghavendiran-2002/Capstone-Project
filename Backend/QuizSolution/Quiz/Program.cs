@@ -9,6 +9,7 @@ using QuizApi.Repositories;
 using QuizApi.Services;
 using QuizApp.Context;
 using QuizApp.Models;
+using System.Text.Json.Serialization;
 namespace QuizApp
 {
     public class Program
@@ -69,6 +70,21 @@ namespace QuizApp
             );
             #endregion
 
+            #region Contexts
+            var DBHOST = Environment.GetEnvironmentVariable("DB_HOST");
+            var DBPASS = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
+            var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
+            var connectionString = @$"Server={DBHOST};Database={DBNAME};User Id=sa;Password={DBPASS};TrustServerCertificate=True";
+
+            builder.Services.AddDbContext<DBQuizContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
+
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            #endregion
 
             #region repositories
             builder.Services.AddScoped<IUserRepository<int, User>, UserRepository>();
