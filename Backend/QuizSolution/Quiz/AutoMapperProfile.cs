@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using QuizApi.Dtos.Quiz;
 using QuizApi.Dtos.User;
 using QuizApp.Models;
 
@@ -10,7 +11,9 @@ namespace QuizApi
         {
             CreateMap<User, UserDTO>();
             CreateMap<RegisterUserDTO, User>();
-               // .ForMember(dest => dest.Password, opt => opt.Ignore()); // Handle password hashing in the service
+            CreateMap<Quiz, QuizDTO>();
+            CreateMap<CreateQuizDTO, Quiz>();
+            CreateMap<CreateQuestionDTO, Question>();
         }
     }
 }

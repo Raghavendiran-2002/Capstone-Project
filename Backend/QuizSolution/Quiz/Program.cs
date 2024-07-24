@@ -71,7 +71,7 @@ namespace QuizApp
             var DBPASS = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
             var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
             var connectionString = $"Server={DBHOST};Database={DBNAME};User ID=sa;Password={DBPASS};TrustServerCertificate=True;Integrated Security=False;MultipleActiveResultSets=true";
-
+            //var connectionString = "Data Source = GRMCBX3; Integrated Security = true; Initial Catalog = dbQuiz";
 
             builder.Services.AddDbContext<DBQuizContext>(options =>
             {
@@ -85,10 +85,13 @@ namespace QuizApp
 
             #region repositories
             builder.Services.AddScoped<IUserRepository<int, User>, UserRepository>();
+            builder.Services.AddScoped<IQuizRepository<int, Quiz>, QuizRepository>();
+
             #endregion
 
             #region services
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IQuizService, QuizService>();
             #endregion
 
 
@@ -118,7 +121,6 @@ namespace QuizApp
             app.UseCors("Cors");
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
             using (var scope = app.Services.CreateScope())
