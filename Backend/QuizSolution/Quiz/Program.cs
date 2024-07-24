@@ -70,7 +70,6 @@ namespace QuizApp
             var DBHOST = Environment.GetEnvironmentVariable("DB_HOST");
             var DBPASS = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
             var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
-            // var connectionString = @$"Server={DBHOST};Database={DBNAME};User Id=sa;Password={DBPASS};TrustServerCertificate=True";
             var connectionString = $"Server={DBHOST};Database={DBNAME};User ID=sa;Password={DBPASS};TrustServerCertificate=True;Integrated Security=False;MultipleActiveResultSets=true";
 
 
@@ -80,8 +79,8 @@ namespace QuizApp
             });
 
 
-            // builder.Services.AddControllers().AddJsonOptions(x =>
-            //     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
             #endregion
 
             #region repositories
