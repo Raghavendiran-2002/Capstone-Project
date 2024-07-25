@@ -6,7 +6,7 @@ namespace QuizApi.Interfaces.Service
     {
         Task<IEnumerable<QuizDTO>> GetQuizzes(string topic = null, List<string> tags = null);
         Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO);
-        Task<bool> AttendQuiz(AttendQuizDTO attendQuizDTO);
+        Task<ReturnAttendQuizDTO> AttendQuiz(AttendQuizDTO attendQuizDTO);
         Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO);
         Task<IEnumerable<QuestionDTO>> GetQuizQuestions(int quizId);
 

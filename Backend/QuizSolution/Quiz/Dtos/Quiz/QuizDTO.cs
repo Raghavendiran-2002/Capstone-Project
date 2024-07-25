@@ -10,6 +10,7 @@
         public DateTime EndTime { get; set; }
         public string Music { get; set; }
         public string Type { get; set; }
+        public string Code { get; set; }
         public List<string> Tags { get; set; }
     }
 }

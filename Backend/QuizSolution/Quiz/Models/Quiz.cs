@@ -21,7 +21,7 @@ namespace QuizApp.Models
         public string? Background { get; set; }
         public string? Music { get; set; }
         public string Type { get; set; }
-        public string Code { get; set; }
+        public string? Code { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public ICollection<Question> Questions { get; set; }

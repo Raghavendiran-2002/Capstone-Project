@@ -7,6 +7,7 @@ using QuizApi.Dtos;
 using QuizApi.Dtos.Quiz;
 using QuizApi.Dtos.User;
 using QuizApi.Exceptions.Quiz;
+using QuizApi.Exceptions.User;
 using QuizApi.Interfaces.Service;
 
 namespace QuizApi.Controllers
@@ -67,7 +68,8 @@ namespace QuizApi.Controllers
         }
         [Authorize]
         [HttpPost("attend-quiz")]
-        [ProducesResponseType(typeof(RegisterUserDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ReturnAttendQuizDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AttendQuiz([FromBody] AttendQuizDTO attendQuizDTO)
         {
@@ -81,20 +83,25 @@ namespace QuizApi.Controllers
                 var result = await _quizService.AttendQuiz(attendQuizDTO);
                 return Ok(result);
             }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return NotFound(ex.Message);
+            }
             catch (QuizNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
                 return NotFound(ex.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (InvalidQuizCodeException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return ValidationProblem(ex.Message);
+            }
+            catch (PrivateQuizException ex)
             {
                 _logger.LogError(ex, ex.Message);
                 return Unauthorized(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error attending quiz");
-                return StatusCode(500, "Internal server error");
             }
         }
         [Authorize]

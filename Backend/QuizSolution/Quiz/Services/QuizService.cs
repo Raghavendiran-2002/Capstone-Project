@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using QuizApi.Dtos.Quiz;
 using QuizApi.Exceptions.Quiz;
+using QuizApi.Exceptions.User;
 using QuizApi.Interfaces.Repository;
 using QuizApi.Interfaces.Service;
 using QuizApp.Models;
@@ -76,24 +77,39 @@ namespace QuizApi.Services
             return quiz;
         }
 
-        public async Task<bool> AttendQuiz(AttendQuizDTO attendQuizDTO)
+        public async Task<ReturnAttendQuizDTO> AttendQuiz(AttendQuizDTO attendQuizDTO)
         {
-            var quiz = await _quizRepository.GetByCode(attendQuizDTO.Code);
+            var quiz = await _quizRepository.GetQuizById(attendQuizDTO.QuizId);
+            var user = await _userRepository.GetUserByEmail(attendQuizDTO.Email);
+            if (user == null)
+                throw new UserNotFoundException("User not Found");
             if (quiz == null)
-            {
-                throw new QuizNotFoundException("Quiz not found");
-            }
+                throw new QuizNotFoundException("Quiz Not Found");
 
+
+            var isCodeValid = quiz.Code == attendQuizDTO.Code;
+            if (!isCodeValid)
+            {
+                throw new InvalidQuizCodeException("Invalid Quiz Code");
+            }
+            
             if (quiz.Type == "private")
-            {
-                var user = await _userRepository.GetUserByEmail(attendQuizDTO.Code);
-             /*   if (!quiz.AllowedUsers.Contains(user))
+            {                
+                if (quiz.AllowedUsers.FirstOrDefault(a => a.UserId == user.UserId)==null)
                 {
-                    throw new UnauthorizedAccessException("User not allowed to attend this quiz");
-                }*/
-            }
-
-            return true;
+                    throw new PrivateQuizException("User not allowed to attend this quiz");
+                }
+            }            
+            return  new ReturnAttendQuizDTO()
+            {
+                QuizId = quiz.QuizId,
+                Emailid = attendQuizDTO.Email,
+                StartTime = quiz.StartTime,
+                EndTime = quiz.EndTime,
+                Duration = quiz.Duration,
+                QuestionDto = await GetQuizQuestions(quiz.QuizId)
+            };
+            
         }
 
         public async Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
@@ -114,7 +130,7 @@ namespace QuizApi.Services
             return new Random().Next(100000, 999999).ToString();
         }
 
-        public async Task<IEnumerable<QuestionDTO>> GetQuizQuestions(int quizId)
+        private async Task<IEnumerable<QuestionDTO>> GetQuizQuestions(int quizId)
         {
             var questions = await _quizRepository.GetQuestionsByQuizId(quizId);
             return _mapper.Map<IEnumerable<QuestionDTO>>(questions);
