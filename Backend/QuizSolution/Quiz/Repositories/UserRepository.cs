@@ -38,5 +38,11 @@ namespace QuizApi.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+        public  async Task<User> GetUserByIdForProfile(int userId)
+        {
+            //return await _context.Users.Include(u => u.Attempts).Include(u => u.Certificates).FirstAsync(i => i.UserId == userId);
+            return await _context.Users.Include(u => u.Attempts).ThenInclude(u=>u.Certificate).FirstOrDefaultAsync(i=>i.UserId==userId);
+        }
     }
 }

@@ -8,5 +8,7 @@ namespace QuizApi.Interfaces.Repository
         Task<T> GetUserById(K userId);
         Task<T> AddUser(T user);
         Task UpdateUser(T user);
+
+        Task<T> GetUserByIdForProfile(K userId);
     }
 }

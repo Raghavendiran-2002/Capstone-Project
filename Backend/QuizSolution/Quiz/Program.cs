@@ -97,7 +97,10 @@ namespace QuizApp
             #region services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IQuizService, QuizService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+
             #endregion
+
 
 
             #region CORS

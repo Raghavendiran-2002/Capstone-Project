@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using QuizApi.Dtos.Profile;
 using QuizApi.Dtos.Quiz;
 using QuizApi.Dtos.User;
 using QuizApp.Models;
@@ -17,6 +18,19 @@ namespace QuizApi
             CreateMap<Question, QuestionDTO>()
             .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
             CreateMap<Option, OptionDTO>();
+            CreateMap<User, ViewProfileDTO>()            
+            .ForMember(dest => dest.Attempts, opt => opt.MapFrom(src => src.Attempts));
+            CreateMap<Attempt, AttemptProfileDTO>()
+                .ForMember(dest => dest.Certificate, opt => opt.MapFrom(src => src.Certificate));
+            CreateMap<Certificate, CertificateProfileDTO>();
+            CreateMap<QuizDTO, Quiz>()
+            .ForMember(dest => dest.QuizTags, opt => opt.MapFrom(src => src.Tags.Select(tag => new QuizTag { Tag = tag }).ToList()))
+            .ForMember(dest => dest.Questions, opt => opt.Ignore())
+            .ForMember(dest => dest.AllowedUsers, opt => opt.Ignore())
+            .ForMember(dest => dest.Attempts, opt => opt.Ignore())
+            .ForMember(dest => dest.Certificates, opt => opt.Ignore())
+            .ForMember(dest => dest.Creator, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
         }
     }
 }
