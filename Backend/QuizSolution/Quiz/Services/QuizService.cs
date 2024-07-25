@@ -131,7 +131,7 @@ namespace QuizApi.Services
             
         }
 
-       public async Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
+       public async Task<ReturnCompleteQuizDTO> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
         {
             // Check if user exists
             var user = await _userRepository.GetUserByEmail(completeQuizDTO.EmailId);
@@ -183,13 +183,13 @@ namespace QuizApi.Services
                 CompletedAt = DateTime.UtcNow
             };
             await _attemptRepository.AddAttempt(attempt);
-          
 
+            var status = "fail";
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
 
-         
+                status = "pass";
                 // Check if the special certificate conditions are met
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
@@ -203,8 +203,6 @@ namespace QuizApi.Services
                         // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
                     };
                     await _certificateRepository.AddCertificate(spccertificate);
-
-
                 }
                 var certificate = new Certificate
                 {
@@ -216,10 +214,8 @@ namespace QuizApi.Services
                 };
 
                 await _certificateRepository.AddCertificate(certificate);
-
             }            
-
-            return true;
+            return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic,Score = scorePercentage, CertUrl = "certurl",Status = status};
         }
        
 

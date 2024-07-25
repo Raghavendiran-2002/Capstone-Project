@@ -7,6 +7,6 @@ namespace QuizApi.Interfaces.Service
         Task<IEnumerable<QuizDTO>> GetQuizzes(string topic = null, List<string> tags = null);
         Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO);
         Task<ReturnAttendQuizDTO> AttendQuiz(AttendQuizDTO attendQuizDTO);
-        Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO);
+        Task<ReturnCompleteQuizDTO > CompleteQuiz(CompleteQuizDTO completeQuizDTO);
     }
 }
