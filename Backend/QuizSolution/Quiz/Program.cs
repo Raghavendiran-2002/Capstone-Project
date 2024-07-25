@@ -89,7 +89,8 @@ namespace QuizApp
             builder.Services.AddScoped<ITagRepository<int, Tag>, TagRepository>();
             builder.Services.AddScoped<IAllowedUserRepository<int, AllowedUser>, AllowedUserRepository>();
             builder.Services.AddScoped<IQuestionRepository<int, Question>, QuestionRepository>();
-
+            builder.Services.AddScoped<IAttemptRepository<int, Attempt>, AttemptRepository>();
+            builder.Services.AddScoped<ICertificateRepository<int, Certificate>, CertificateRepository>();
 
             #endregion
 

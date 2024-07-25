@@ -8,7 +8,7 @@ namespace QuizApp.Models
         public int CertificateId { get; set; }
 
         [Required]
-        public string? Type { get; set; }
+        public string? CertType { get; set; }
 
         [Required]
         public int AttemptId { get; set; }

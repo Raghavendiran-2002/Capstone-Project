@@ -41,7 +41,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving quizzes");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex.Message);
             }
         }
         [Authorize]
@@ -63,7 +63,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating quiz");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex.Message);
             }
         }
         [Authorize]
@@ -120,6 +120,16 @@ namespace QuizApi.Controllers
                 var result = await _quizService.CompleteQuiz(completeQuizDTO);
                 return Ok(result);
             }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (TimeLimitExceededException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
             catch (QuizNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
@@ -128,7 +138,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error completing quiz");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex.Message);
             }
         }     
     }

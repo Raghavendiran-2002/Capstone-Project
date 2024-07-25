@@ -16,13 +16,17 @@ namespace QuizApi.Services
         private readonly IUserRepository<int, User> _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<QuizService> _logger;
+        private readonly ICertificateRepository<int, Certificate> _certificateRepository;
         private readonly ITagRepository<int, Tag> _tagRepository;
+        private readonly IAttemptRepository<int, Attempt> _attemptRepository;
         private readonly IQuestionRepository<int, Question> _questionRepository;
         private readonly IAllowedUserRepository<int, AllowedUser> _allowedUserRepository;
 
-        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository)
+        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository)
         {
             _quizRepository = quizRepository;
+            _certificateRepository = certificateRepository;
+            _attemptRepository = attemptRepository;
             _questionRepository = questionRepository;
             _userRepository = userRepository;
             _tagRepository = tagRepository;
@@ -178,40 +182,40 @@ namespace QuizApi.Services
                 Score = (int)scorePercentage,
                 CompletedAt = DateTime.UtcNow
             };
-            //user.Attempts.Add(attempt);
+            await _attemptRepository.AddAttempt(attempt);
           
 
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
 
-                var certificate=new Certificate();
          
                 // Check if the special certificate conditions are met
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
-                    certificate = new Certificate
+                    var  spccertificate = new Certificate
                     {
                         AttemptId = attempt.AttemptId,
                         UserId = user.UserId,
                         QuizId = completeQuizDTO.QuizId,
                         Url = "Special",
-                        Type = "Special",
+                        CertType = "Special",
                         // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
                     };
+                    await _certificateRepository.AddCertificate(spccertificate);
 
-               
+
                 }
-                certificate = new Certificate
+                var certificate = new Certificate
                 {
                     AttemptId = attempt.AttemptId,
                     UserId = user.UserId,
                     QuizId = completeQuizDTO.QuizId,
-                    Type="Normal",
+                    CertType = "Normal",
                     Url = "Normal"//GenerateCertificateUrl(attempt.AttemptId)
                 };
 
-                //user.Certificates.Add(certificate);
+                await _certificateRepository.AddCertificate(certificate);
 
             }            
 

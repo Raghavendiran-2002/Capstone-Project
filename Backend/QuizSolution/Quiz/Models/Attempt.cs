@@ -6,7 +6,6 @@ namespace QuizApp.Models
     {
         [Key]
         public int AttemptId { get; set; }
-
         [Required]
         public int UserId { get; set; }
         public User User { get; set; }
