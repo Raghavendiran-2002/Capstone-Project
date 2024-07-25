@@ -14,8 +14,8 @@ namespace QuizApp.Models
 
         [Required]
         public string OptionText { get; set; }
-
-        public ICollection<CorrectAnswer> CorrectAnswers { get; set; }
+        [Required]
+        public bool IsAnswer { get; set; }
         public ICollection<Answer> Answers { get; set; }
     }
 }

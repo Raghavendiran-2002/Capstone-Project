@@ -12,6 +12,8 @@ namespace QuizApi.Interfaces.Repository
         Task<IEnumerable<T>> GetQuizzesByTopicAndTags(string topic, List<string> tags);
 
         Task<T> GetByCode(string code);
+        Task<IEnumerable<Question>> GetQuestionsByQuizId(int quizId);
 
-     }
+
+    }
 }

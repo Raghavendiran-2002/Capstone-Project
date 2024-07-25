@@ -14,6 +14,9 @@ namespace QuizApi
             CreateMap<Quiz, QuizDTO>();
             CreateMap<CreateQuizDTO, Quiz>();
             CreateMap<CreateQuestionDTO, Question>();
+            CreateMap<Question, QuestionDTO>()
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
+            CreateMap<Option, OptionDTO>();
         }
     }
 }

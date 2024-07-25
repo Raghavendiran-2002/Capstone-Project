@@ -38,6 +38,14 @@ namespace QuizApi.Repositories
            return await _context.Quizzes.FirstAsync(x => x.Code == code);
         }
 
+        public async Task<IEnumerable<Question>> GetQuestionsByQuizId(int quizId)
+        {
+            return await _context.Questions
+           .Where(q => q.QuizId == quizId)
+           .Include(q => q.Options)
+           .ToListAsync();
+        }
+
         public async Task<Quiz> GetQuizById(int key)
         {
             return await _context.Quizzes.FindAsync(key);

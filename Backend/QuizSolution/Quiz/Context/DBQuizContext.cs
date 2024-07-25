@@ -10,7 +10,6 @@ namespace QuizApp.Context
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Option> Options { get; set; }
-        public DbSet<CorrectAnswer> CorrectAnswers { get; set; }
         public DbSet<QuizTag> QuizTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<AllowedUser> AllowedUsers { get; set; }
@@ -40,19 +39,7 @@ namespace QuizApp.Context
                 .HasOne(o => o.Question)
                 .WithMany(q => q.Options)
                 .HasForeignKey(o => o.QuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<CorrectAnswer>()
-                .HasOne(ca => ca.Question)
-                .WithMany(q => q.CorrectAnswers)
-                .HasForeignKey(ca => ca.QuestionId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<CorrectAnswer>()
-                .HasOne(ca => ca.Option)
-                .WithMany(o => o.CorrectAnswers)
-                .HasForeignKey(ca => ca.OptionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);            
 
             modelBuilder.Entity<AllowedUser>()
                 .HasOne(au => au.Quiz)

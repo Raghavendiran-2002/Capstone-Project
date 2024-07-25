@@ -31,26 +31,29 @@ namespace QuizApi.Services
 
         public async Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO)
         {
-            // Map the DTO to the Quiz entity
+            
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
 
-            // Set additional properties
+         
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.Code = GenerateUniqueCode();
 
             
-            // Map the questions and options
+
             quiz.Questions = createQuizDTO.Questions.Select(q => new Question
             {
                 QuestionText = q.QuestionText,
-                Options = q.Options.Select(o => new Option { OptionText = o }).ToList(),
-              //  CorrectAnswers = q.CorrectAnswers.Select(c => new CorrectAnswer {   }) .ToList()
+                Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer=q.CorrectAnswers.Contains(o)}).ToList(),             
             }).ToList();
 
-            // Add tags
-            //quiz.QuizTags = createQuizDTO.Tags.Select(tag => new QuizTag { Tag = new Tag { TagName = tag } }).ToList();
-
-            // Add allowed users if the quiz is private
+           /* if (createQuizDTO.Tags != null && createQuizDTO.Tags.Any())
+            {
+                quiz.QuizTags = createQuizDTO.Tags.Select(tag => new QuizTag
+                {
+                    TagEntity = new Tag { TagName = tag }
+                }).ToList();
+            }*/
+            
             if (createQuizDTO.Type == "private")
             {
                 quiz.AllowedUsers = createQuizDTO.AllowedUsers.Select(email => new AllowedUser
@@ -59,16 +62,12 @@ namespace QuizApi.Services
                 }).ToList();
             }
 
-            // Save the quiz to the database
+          
             quiz = await _quizRepository.AddQuiz(quiz);
-            //quiz.Questions.FirstOrDefault(q=>q.QuestionId==)
-            // Map the entity back to the DTO
+            
             var quizDTO = _mapper.Map<QuizDTO>(quiz);
 
             return quizDTO;
-
-            //Create Quiz Tag before exiting....
-
         }
 
         private Quiz MapCreateQuizDTOtoQuiz(CreateQuizDTO createQuizDTO)
@@ -113,6 +112,12 @@ namespace QuizApi.Services
         private string GenerateUniqueCode()
         {
             return new Random().Next(100000, 999999).ToString();
+        }
+
+        public async Task<IEnumerable<QuestionDTO>> GetQuizQuestions(int quizId)
+        {
+            var questions = await _quizRepository.GetQuestionsByQuizId(quizId);
+            return _mapper.Map<IEnumerable<QuestionDTO>>(questions);
         }
     }
 }
