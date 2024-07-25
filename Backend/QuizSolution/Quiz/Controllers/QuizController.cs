@@ -130,25 +130,6 @@ namespace QuizApi.Controllers
                 _logger.LogError(ex, "Error completing quiz");
                 return StatusCode(500, "Internal server error");
             }
-        }
-        [HttpGet("quizz-questions")]
-        public async Task<IActionResult> GetQuizQuestions([FromQuery] int quizId)
-        {
-            try
-            {
-                var questions = await _quizService.GetQuizQuestions(quizId);
-                return Ok(questions);
-            }
-            catch (QuizNotFoundException ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving quiz questions");
-                return StatusCode(500, "Internal server error");
-            }
-        }
+        }     
     }
 }

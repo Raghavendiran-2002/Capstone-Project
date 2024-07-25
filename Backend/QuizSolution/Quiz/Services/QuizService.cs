@@ -4,6 +4,7 @@ using QuizApi.Exceptions.Quiz;
 using QuizApi.Exceptions.User;
 using QuizApi.Interfaces.Repository;
 using QuizApi.Interfaces.Service;
+using QuizApi.Repositories;
 using QuizApp.Models;
 
 namespace QuizApi.Services
@@ -15,11 +16,17 @@ namespace QuizApi.Services
         private readonly IUserRepository<int, User> _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<QuizService> _logger;
+        private readonly ITagRepository<int, Tag> _tagRepository;
+        private readonly IQuestionRepository<int, Question> _questionRepository;
+        private readonly IAllowedUserRepository<int, AllowedUser> _allowedUserRepository;
 
-        public QuizService(IQuizRepository<int, Quiz> quizRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger)
+        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository)
         {
             _quizRepository = quizRepository;
+            _questionRepository = questionRepository;
             _userRepository = userRepository;
+            _tagRepository = tagRepository;
+            _allowedUserRepository = allowedUserRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -34,8 +41,9 @@ namespace QuizApi.Services
         {
             
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
+            var allTags = await _tagRepository.GetAllTag();
 
-         
+
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.Code = GenerateUniqueCode();
 
@@ -47,19 +55,21 @@ namespace QuizApi.Services
                 Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer=q.CorrectAnswers.Contains(o)}).ToList(),             
             }).ToList();
 
-           /* if (createQuizDTO.Tags != null && createQuizDTO.Tags.Any())
+   /*         if (createQuizDTO.Tags != null && createQuizDTO.Tags.Any())
             {
-                quiz.QuizTags = createQuizDTO.Tags.Select(tag => new QuizTag
+
+                quiz.QuizTags = createQuizDTO.Tags.Find(tag => tag.C(allTags.Any());
+                quiz.QuizTags = createQuizDTO.Tags.(tag => new QuizTag
                 {
-                    TagEntity = new Tag { TagName = tag }
+                    Tag = tag.con
                 }).ToList();
             }*/
-            
+
             if (createQuizDTO.Type == "private")
             {
                 quiz.AllowedUsers = createQuizDTO.AllowedUsers.Select(email => new AllowedUser
                 {
-                    User = _userRepository.GetUserByEmail(email).Result // Assuming GetUserByEmail is synchronous
+                    User = _userRepository.GetUserByEmail(email).Result 
                 }).ToList();
             }
 
@@ -92,10 +102,15 @@ namespace QuizApi.Services
             {
                 throw new InvalidQuizCodeException("Invalid Quiz Code");
             }
-            
+
+            if (!(quiz.StartTime < DateTime.UtcNow & quiz.EndTime > DateTime.UtcNow))
+                throw new QuizTimeException("Quiz Time Not Allowed");
+
+
             if (quiz.Type == "private")
-            {                
-                if (quiz.AllowedUsers.FirstOrDefault(a => a.UserId == user.UserId)==null)
+            {
+                var type = (await _allowedUserRepository.ValidateQuizAccess(user.UserId, quiz.QuizId));                
+                if (type.Count() == 0)
                 {
                     throw new PrivateQuizException("User not allowed to attend this quiz");
                 }
@@ -112,18 +127,97 @@ namespace QuizApi.Services
             
         }
 
-        public async Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
+       public async Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
         {
+            // Check if user exists
+            var user = await _userRepository.GetUserByEmail(completeQuizDTO.EmailId);
+            if(user == null)
+            {
+                throw new UserNotFoundException("User not found");
+            }
+            // Check if quiz exists
             var quiz = await _quizRepository.GetQuizById(completeQuizDTO.QuizId);
             if (quiz == null)
             {
                 throw new QuizNotFoundException("Quiz not found");
             }
 
-            // Further logic for calculating score, awarding certificates, etc.
+            // Calculate the time taken to complete the quiz
+            var timeTakenToComplete = completeQuizDTO.EndTime - completeQuizDTO.StartTime;
+            if (timeTakenToComplete.TotalMinutes > quiz.Duration)
+            {
+                throw new TimeLimitExceededException("Time limit exceeded");
+            }          
+
+            // Retrieve questions and correct answers from the database
+            var questions = await _quizRepository.GetQuestionsByQuizId(completeQuizDTO.QuizId);
+            int totalQuestions = questions.Count();
+            int correctAnswersCount = 0;
+
+            // Calculate the score
+            foreach (var userAnswer in completeQuizDTO.Answers)
+            {
+                var question = questions.FirstOrDefault(q => q.QuestionId == userAnswer.QuestionId);
+                if (question != null)
+                {
+                    var correctOptions = question.Options.Where(co => co.IsAnswer == true).Select(co=>co.OptionText);                    
+                    if (!correctOptions.Except(userAnswer.SelectedAnswers).Any() && !userAnswer.SelectedAnswers.Except(correctOptions).Any())
+                    {
+                        correctAnswersCount++;
+                    }
+                }
+            }
+            // Calculate percentage
+            double scorePercentage = (correctAnswersCount / (double)totalQuestions) * 100;
+
+            
+            var attempt = new Attempt
+            {
+                UserId = user.UserId,
+                QuizId = completeQuizDTO.QuizId,
+                Score = (int)scorePercentage,
+                CompletedAt = DateTime.UtcNow
+            };
+            //user.Attempts.Add(attempt);
+          
+
+            // Award certificates based on the score and time taken
+            if (scorePercentage >= 80)
+            {
+
+                var certificate=new Certificate();
+         
+                // Check if the special certificate conditions are met
+                if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
+                {
+                    certificate = new Certificate
+                    {
+                        AttemptId = attempt.AttemptId,
+                        UserId = user.UserId,
+                        QuizId = completeQuizDTO.QuizId,
+                        Url = "Special",
+                        Type = "Special",
+                        // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
+                    };
+
+               
+                }
+                certificate = new Certificate
+                {
+                    AttemptId = attempt.AttemptId,
+                    UserId = user.UserId,
+                    QuizId = completeQuizDTO.QuizId,
+                    Type="Normal",
+                    Url = "Normal"//GenerateCertificateUrl(attempt.AttemptId)
+                };
+
+                //user.Certificates.Add(certificate);
+
+            }            
 
             return true;
         }
+       
 
         private string GenerateUniqueCode()
         {
@@ -135,5 +229,7 @@ namespace QuizApi.Services
             var questions = await _quizRepository.GetQuestionsByQuizId(quizId);
             return _mapper.Map<IEnumerable<QuestionDTO>>(questions);
         }
+
+       
     }
 }

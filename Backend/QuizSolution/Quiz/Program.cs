@@ -86,6 +86,10 @@ namespace QuizApp
             #region repositories
             builder.Services.AddScoped<IUserRepository<int, User>, UserRepository>();
             builder.Services.AddScoped<IQuizRepository<int, Quiz>, QuizRepository>();
+            builder.Services.AddScoped<ITagRepository<int, Tag>, TagRepository>();
+            builder.Services.AddScoped<IAllowedUserRepository<int, AllowedUser>, AllowedUserRepository>();
+            builder.Services.AddScoped<IQuestionRepository<int, Question>, QuestionRepository>();
+
 
             #endregion
 

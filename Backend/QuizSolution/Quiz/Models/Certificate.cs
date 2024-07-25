@@ -8,6 +8,9 @@ namespace QuizApp.Models
         public int CertificateId { get; set; }
 
         [Required]
+        public string? Type { get; set; }
+
+        [Required]
         public int AttemptId { get; set; }
         public Attempt Attempt { get; set; }
 

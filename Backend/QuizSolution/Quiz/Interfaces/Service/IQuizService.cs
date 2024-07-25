@@ -8,7 +8,5 @@ namespace QuizApi.Interfaces.Service
         Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO);
         Task<ReturnAttendQuizDTO> AttendQuiz(AttendQuizDTO attendQuizDTO);
         Task<bool> CompleteQuiz(CompleteQuizDTO completeQuizDTO);
-        Task<IEnumerable<QuestionDTO>> GetQuizQuestions(int quizId);
-
     }
 }

@@ -88,6 +88,15 @@ namespace QuizApp.Context
                 .WithMany(u => u.Certificates)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            var tag1 = new Tag { TagName = "Devops" };
+            var tag2 = new Tag { TagName = "App Development" };
+            var tag3 = new Tag { TagName = "System Admin" };
+            var tag4 = new Tag { TagName = "Network Engineer" };
+            modelBuilder.Entity<Tag>().HasData(tag1);
+            modelBuilder.Entity<Tag>().HasData(tag2);
+            modelBuilder.Entity<Tag>().HasData(tag3);
+            modelBuilder.Entity<Tag>().HasData(tag4);
         }
     }
 }

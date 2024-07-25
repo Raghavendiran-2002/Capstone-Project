@@ -7,6 +7,9 @@ namespace QuizApi.Dtos.Quiz
         [Required(ErrorMessage = "QuizId is required.")]
         public int QuizId { get; set; }
 
+        [Required(ErrorMessage = "EmailId is required.")]
+        public string EmailId { get; set; }
+
         [Required]
         public DateTime StartTime { get; set; }
 
