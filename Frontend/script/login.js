@@ -1,3 +1,5 @@
+const IP ="https://quizbackend.raghavendiran.cloud"
+
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
     document.body.classList.add("dark-mode");
@@ -16,7 +18,7 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
     password: password,
   };
 
-  fetch("http://localhost:5274/api/Auth/login", {
+  fetch(`${IP}/api/Auth/login`, {
     method: "POST",
     headers: {
       accept: "text/plain",

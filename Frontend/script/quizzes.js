@@ -1,3 +1,4 @@
+const IP ="https://quizbackend.raghavendiran.cloud"
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
     document.body.classList.add("dark-mode");
@@ -6,13 +7,13 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () { 
   fetchQuizzes();
 });
 
-function fetchQuizzes() {
+function fetchQuizzes () {
   fetch(
-    "http://localhost:5274/api/Quiz/quizzes?topic=afsd&tags=tag1&tags=tag2",
+    `${IP}/api/Quiz/quizzes`,
     {
       headers: {
         accept: "text/plain",

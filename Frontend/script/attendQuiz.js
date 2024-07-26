@@ -1,3 +1,5 @@
+const IP ="https://quizbackend.raghavendiran.cloud"
+
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
     document.body.classList.add("dark-mode");
@@ -8,23 +10,25 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
 
 document.getElementById("start-quiz").addEventListener("click", function () {
   const quizCode = document.getElementById("quiz-code").value;
-  const email = localStorage.getItem("email");
-
+  const email = "abcd@example.com";
+  //const email = localStorage.getItem("email");
+  //735889
   if (quizCode && email) {
-    fetch("http://localhost:5274/api/Quiz/attend-quiz", {
+    fetch(`${IP}/api/Quiz/attend-quiz`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer YOUR_JWT_TOKEN",
+        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjE4MjEwMzAsImV4cCI6MTcyMjQyNTgzMCwiaWF0IjoxNzIxODIxMDMwfQ.Zzf4LjLhQAVRJiutJRpu2H4NTsZNvnhvV8o8L9NZfCI",
       },
       body: JSON.stringify({
         code: quizCode,
-        quizId: parseInt(quizCode), // Assuming the code is the quiz ID
-        email: email,
+        quizId: 3, // Assuming the code is the quiz ID
+        email: "abcd@example.com",
       }),
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         if (data.quizId) {
           startQuiz(data);
         } else {
@@ -55,7 +59,7 @@ function startQuiz(data) {
     }${seconds}`;
     if (--duration < 0) {
       clearInterval(interval);
-      submitQuiz();
+      submitQuiz(duration);
     }
   }, 1000);
 
@@ -87,8 +91,9 @@ function startQuiz(data) {
   quizContent.appendChild(submitButton);
 }
 
-function submitQuiz() {
-  const email = localStorage.getItem("email");
+function submitQuiz(duration) {
+  const email = "abcd@example.com";
+  //const email = localStorage.getItem("email");
   const quizId = document.getElementById("quiz-code").value;
   const startTime = new Date().toISOString();
   const endTime = new Date(
@@ -107,7 +112,7 @@ function submitQuiz() {
     }
   );
 
-  fetch("http://cloud.raghav.com/api/submit-test", {
+  fetch(`${IP}/api/submit-test`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
