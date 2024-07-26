@@ -6,5 +6,7 @@
    
         Task<T> AddTag(T tag);
          void  DeleteTag(T tag);
+
+        Task<T> GetTagById(string key);
     }
 }

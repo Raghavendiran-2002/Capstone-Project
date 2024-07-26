@@ -9,9 +9,6 @@ namespace QuizApp.Models
 
         public ICollection<QuizTag> QuizTags { get; set; }
 
-        public static implicit operator string(Tag v)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

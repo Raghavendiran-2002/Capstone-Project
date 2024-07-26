@@ -25,7 +25,7 @@ namespace QuizApp.Models
         public DateTime CreatedAt { get; set; }
 
         public ICollection<Question> Questions { get; set; }
-        public ICollection<QuizTag>? QuizTags { get; set; }
+        public ICollection<QuizTag> QuizTags { get; set; }
         public ICollection<AllowedUser> AllowedUsers { get; set; }
         public ICollection<Attempt> Attempts { get; set; }
         public ICollection<Certificate> Certificates { get; set; }
