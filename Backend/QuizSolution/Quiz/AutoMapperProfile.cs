@@ -15,9 +15,18 @@ namespace QuizApi
             CreateMap<Quiz, QuizDTO>();
             CreateMap<CreateQuizDTO, Quiz>();
             CreateMap<CreateQuestionDTO, Question>();
+            CreateMap<Quiz, ViewUpdateQuizDTO>().ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
+            CreateMap<ViewUpdateQuizDTO,Quiz>().ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
+            CreateMap<Quiz, ViewUpdateQuizDTO>().ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
             CreateMap<Question, QuestionDTO>()
             .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
+            CreateMap<Question, QuestionProfileDTO>()
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
+            CreateMap<QuestionProfileDTO, Question>()
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
             CreateMap<Option, OptionDTO>();
+            CreateMap<Option, OptionWithAnswerDTO>();
+            CreateMap<OptionWithAnswerDTO, Option>();
             CreateMap<User, ViewProfileDTO>()            
             .ForMember(dest => dest.Attempts, opt => opt.MapFrom(src => src.Attempts));
             CreateMap<Attempt, AttemptProfileDTO>()

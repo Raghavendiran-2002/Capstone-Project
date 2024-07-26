@@ -6,6 +6,7 @@ namespace QuizApi.Interfaces.Repository
     {
         Task<T> GetQuizById(K key);
         Task<IEnumerable<T>> GetAllQuiz();
+        Task<IEnumerable<T>> GetQuizzWithQuestions();
         Task<T> AddQuiz(T quiz);
         void UpdateQuiz(T quiz);
         void DeleteQuizById(K key);

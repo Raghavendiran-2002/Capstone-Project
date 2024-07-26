@@ -44,13 +44,30 @@ namespace QuizApi.Controllers
         }
         [Authorize]
         [HttpPost("update-quiz")]
-        [ProducesResponseType(typeof(QuizDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ViewUpdateQuizDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateQuiz(int userId,QuizDTO quiz)
+        public async Task<IActionResult> UpdateQuiz(ViewUpdateQuizDTO quiz)
         {
             try
             {
-                var user = await _profileService.UpdateQuiz(userId,quiz);
+                var user = await _profileService.UpdateQuiz(quiz);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving quizzes");
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [Authorize]
+        [HttpGet("quiz-creator")]
+        [ProducesResponseType(typeof(ViewUpdateQuizDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> QuizCreator(int userId)
+        {
+            try
+            {
+                var user = await _profileService.viewUpdateQuiz(userId);
                 return Ok(user);
             }
             catch (Exception ex)

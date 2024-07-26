@@ -68,6 +68,11 @@ namespace QuizApi.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<IEnumerable<Quiz>> GetQuizzWithQuestions()
+        {
+            return await _context.Quizzes.Include(q=>q.Questions).ThenInclude(qp=>qp.Options).ToListAsync();
+        }
+
         public async void UpdateQuiz(Quiz quiz)
         {
            if(quiz == null)
