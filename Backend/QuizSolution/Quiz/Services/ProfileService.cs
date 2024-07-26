@@ -6,6 +6,7 @@ using QuizApi.Exceptions.Profile;
 using QuizApi.Interfaces.Repository;
 using QuizApi.Interfaces.Service;
 using QuizApp.Models;
+
 namespace QuizApi.Services
 {
     public class ProfileService : IProfileService
@@ -26,12 +27,9 @@ namespace QuizApi.Services
             return quizDTO;
         }
 
-        public async Task<QuizDTO> UpdateQuiz(int userId,QuizDTO quizDTO)
-        {            
-            var quiz = await _quizRepository.GetQuizById(quizDTO.QuizId);
-            if (quiz.CreatorId != userId)
-                throw new NotTheCreatorOfQuiz("No Creator of Quiz");
-            quiz = _mapper.Map<Quiz>(quizDTO);
+        public async Task<ViewUpdateQuizDTO> UpdateQuiz( ViewUpdateQuizDTO quizDTO)
+        {
+            var quiz = _mapper.Map<Quiz>(quizDTO);                        
             _quizRepository.UpdateQuiz(quiz);
             return quizDTO;
         }
@@ -41,9 +39,15 @@ namespace QuizApi.Services
         {
             var user = await _userRepository.GetUserByIdForProfile(userId);
             var userDTO = _mapper.Map<ViewProfileDTO>(user);
-
             return userDTO;
 
+        }
+
+        public async Task<IEnumerable<ViewUpdateQuizDTO>> viewUpdateQuiz(int userId)
+        {
+            var quiz = (await  _quizRepository.GetQuizzWithQuestions()).Where(q=>q.CreatorId==userId).ToList();
+            var quizDTO = _mapper.Map<IEnumerable<ViewUpdateQuizDTO>>(quiz);
+            return quizDTO;
         }
     }
 }
