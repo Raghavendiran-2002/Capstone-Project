@@ -1,4 +1,6 @@
-const IP ="https://quizbackend.raghavendiran.cloud"
+const IP = "https://quizbackend.raghavendiran.cloud";
+const bearer =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo";
 
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
@@ -10,25 +12,23 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
 
 document.getElementById("start-quiz").addEventListener("click", function () {
   const quizCode = document.getElementById("quiz-code").value;
-  const email = "abcd@example.com";
-  //const email = localStorage.getItem("email");
-  //735889
+  //  const email = localStorage.getItem("email");
+  const email = "user@example.com";
   if (quizCode && email) {
     fetch(`${IP}/api/Quiz/attend-quiz`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjE4MjEwMzAsImV4cCI6MTcyMjQyNTgzMCwiaWF0IjoxNzIxODIxMDMwfQ.Zzf4LjLhQAVRJiutJRpu2H4NTsZNvnhvV8o8L9NZfCI",
+        Authorization: `Bearer ${bearer}`,
       },
       body: JSON.stringify({
         code: quizCode,
-        quizId: 3, // Assuming the code is the quiz ID
-        email: "abcd@example.com",
+        quizId: 9, // Assuming the code is the quiz ID
+        email: email,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         if (data.quizId) {
           startQuiz(data);
         } else {
@@ -42,8 +42,11 @@ document.getElementById("start-quiz").addEventListener("click", function () {
     );
   }
 });
+let quizData;
+let currentQuestionIndex = 0;
 
 function startQuiz(data) {
+  quizData = data;
   document.getElementById("quiz-details").classList.add("d-none");
   document.getElementById("quiz-container").classList.remove("d-none");
 
@@ -59,67 +62,102 @@ function startQuiz(data) {
     }${seconds}`;
     if (--duration < 0) {
       clearInterval(interval);
-      submitQuiz(duration);
+      submitQuiz(data.quizId, data.startTime);
     }
   }, 1000);
 
-  const quizContent = document.getElementById("quiz-content");
-  quizContent.innerHTML = "";
-  data.questionDto.forEach((question, index) => {
-    const questionDiv = document.createElement("div");
-    questionDiv.classList.add("question");
-    questionDiv.innerHTML = `
-              <h3>${question.questionText}</h3>
-              ${question.options
-                .map(
-                  (option) => `
-                  <div>
-                      <input type="radio" name="question-${index}" value="${option.optionText}">
-                      <label>${option.optionText}</label>
-                  </div>
-              `
-                )
-                .join("")}
-          `;
-    quizContent.appendChild(questionDiv);
-  });
-
-  const submitButton = document.createElement("button");
-  submitButton.textContent = "Submit";
-  submitButton.classList.add("btn", "btn-primary", "mt-3");
-  submitButton.addEventListener("click", submitQuiz);
-  quizContent.appendChild(submitButton);
+  showQuestion(currentQuestionIndex);
 }
 
-function submitQuiz(duration) {
-  const email = "abcd@example.com";
-  //const email = localStorage.getItem("email");
-  const quizId = document.getElementById("quiz-code").value;
-  const startTime = new Date().toISOString();
-  const endTime = new Date(
-    new Date().getTime() + duration * 60 * 1000
-  ).toISOString();
+function showQuestion(index) {
+  const quizContent = document.getElementById("quiz-content");
+  quizContent.innerHTML = "";
 
-  const answers = Array.from(document.querySelectorAll(".question")).map(
-    (questionDiv, index) => {
-      const selectedAnswer = questionDiv.querySelector(
-        'input[type="radio"]:checked'
-      );
-      return {
-        questionId: index,
-        selectedAnswers: [selectedAnswer ? selectedAnswer.value : ""],
-      };
-    }
+  const question = quizData.questionDto[index];
+  const questionDiv = document.createElement("div");
+  questionDiv.classList.add("question");
+  questionDiv.innerHTML = `
+    <h3>${question.questionText}</h3>
+    ${question.options
+      .map(
+        (option) => `
+          <div>
+              <input type="radio" name="question-${question.questionId}" value="${option.optionText}">
+              <label>${option.optionText}</label>
+          </div>
+      `
+      )
+      .join("")}
+  `;
+  quizContent.appendChild(questionDiv);
+
+  const buttonContainer = document.createElement("div");
+  buttonContainer.classList.add("d-flex", "justify-content-between", "mt-3");
+
+  if (index > 0) {
+    const prevButton = document.createElement("button");
+    prevButton.textContent = "Previous";
+    prevButton.classList.add("btn", "btn-secondary");
+    prevButton.addEventListener("click", () => {
+      saveAnswer(index);
+      showQuestion(index - 1);
+    });
+    buttonContainer.appendChild(prevButton);
+  }
+
+  if (index < quizData.questionDto.length - 1) {
+    const nextButton = document.createElement("button");
+    nextButton.textContent = "Next";
+    nextButton.classList.add("btn", "btn-primary");
+    nextButton.addEventListener("click", () => {
+      saveAnswer(index);
+      showQuestion(index + 1);
+    });
+    buttonContainer.appendChild(nextButton);
+  } else {
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    submitButton.classList.add("btn", "btn-primary");
+    submitButton.addEventListener("click", () => {
+      saveAnswer(index);
+      submitQuiz(quizData.quizId, quizData.startTime);
+    });
+    buttonContainer.appendChild(submitButton);
+  }
+
+  quizContent.appendChild(buttonContainer);
+}
+
+function saveAnswer(index) {
+  const question = quizData.questionDto[index];
+  const selectedAnswer = document.querySelector(
+    `input[name="question-${question.questionId}"]:checked`
   );
 
-  fetch(`${IP}/api/submit-test`, {
+  quizData.questionDto[index].selectedAnswer = selectedAnswer
+    ? selectedAnswer.value
+    : "";
+}
+
+function submitQuiz(quizId, startTime) {
+  const email = localStorage.getItem("email");
+  const endTime = new Date().toISOString();
+
+  const answers = quizData.questionDto.map((question) => {
+    return {
+      questionId: question.questionId,
+      selectedAnswers: [question.selectedAnswer || ""],
+    };
+  });
+
+  fetch(`${IP}/api/Quiz/complete-quiz`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer YOUR_JWT_TOKEN",
+      Authorization: `Bearer ${bearer}`,
     },
     body: JSON.stringify({
-      quizId: parseInt(quizId),
+      quizId: quizId,
       emailId: email,
       startTime: startTime,
       endTime: endTime,
@@ -128,7 +166,10 @@ function submitQuiz(duration) {
   })
     .then((response) => response.json())
     .then((data) => {
-      alert("Quiz submitted successfully!");
+      if (data.status)
+        alert(
+          `Quiz submitted successfully! ${data.status} + score: ${data.score}`
+        );
       window.location.reload();
     })
     .catch((error) => console.error("Error:", error));

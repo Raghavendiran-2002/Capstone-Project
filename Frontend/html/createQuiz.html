@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/createQuiz.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Create a Quiz</h1>
+        <form id="quiz-form">
+            <input type="hidden" id="userId" value="">
+            <div class="mb-3">
+                <label for="topic" class="form-label">Topic</label>
+                <input type="text" class="form-control" id="topic" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" required>
+            </div>
+            <div id="questions-container" class="mb-3">
+                <div class="question mb-3">
+                    <label for="questionText" class="form-label">Question Text</label>
+                    <input type="text" class="form-control" name="questionText" required>
+                    <div class="options mt-3">
+                        <label class="form-label">Options</label>
+                        <input type="text" class="form-control mb-2" name="options" required>
+                        <input type="text" class="form-control mb-2" name="options" required>
+                        <input type="text" class="form-control mb-2" name="options" required>
+                        <input type="text" class="form-control mb-2" name="options" required>
+                    </div>
+                    <div class="correct-answers mt-3">
+                        <label class="form-label">Correct Answers</label>
+                        <input type="text" class="form-control mb-2" name="correctAnswers" required>
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="add-question" class="btn btn-secondary mb-3">Add Another Question</button>
+            <div class="mb-3">
+                <label for="duration" class="form-label">Duration (minutes)</label>
+                <input type="number" class="form-control" id="duration" required>
+            </div>
+            <div class="mb-3">
+                <label for="startTime" class="form-label">Start Time</label>
+                <input type="datetime-local" class="form-control" id="startTime" required>
+            </div>
+            <div class="mb-3">
+                <label for="endTime" class="form-label">End Time</label>
+                <input type="datetime-local" class="form-control" id="endTime" required>
+            </div>
+            <div class="mb-3">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" id="type" required>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            <div id="allowed-users-container" class="mb-3 d-none">
+                <label for="allowedUsers" class="form-label">Allowed Users (Emails, comma-separated)</label>
+                <input type="text" class="form-control" id="allowedUsers">
+            </div>
+            <button type="submit" class="btn btn-primary">Create Quiz</button>
+        </form>
+    </div>
+    <div class="toggle-switch">
+        <input type="checkbox" id="theme-toggle" class="toggle-input">
+        <label for="theme-toggle" class="toggle-label"></label>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/script/createQuiz.js"></script>
+</body>
+</html>

@@ -70,9 +70,6 @@ body.dark-mode {
     color: #f8f9fa;
     background-image: url('/public/pattern-background-desktop-dark.svg');
 }
-.dark-mode .list-group-item-action {
-    color: white; /* Change text color to white in dark mode */
-}
 
 body.dark-mode .list-group-item {
     background-color: #343a40;
@@ -81,9 +78,4 @@ body.dark-mode .list-group-item {
 
 body.dark-mode .list-group-item:hover {
     background-color: #495057;
-}
-
-.quiz-list {
-    max-height: 550px; /* Adjust height as needed */
-    overflow-y: auto;
 }

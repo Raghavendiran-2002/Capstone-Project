@@ -1,4 +1,4 @@
-const IP ="https://quizbackend.raghavendiran.cloud"
+const IP = "https://quizbackend.raghavendiran.cloud";
 
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
@@ -33,6 +33,7 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
         localStorage.setItem("userId", data.user.userId);
         localStorage.setItem("email", data.user.email);
         showToast("Registration successful!", "success");
+        window.location.href = "../html/quizzes.html";
       } else {
         showToast(data.message, "danger");
       }
@@ -45,6 +46,10 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
 
 function showToast(message, type) {
   const toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) {
+    console.error("Toast container not found");
+    return; // Exit the function if the container is not found
+  }
   const toast = document.createElement("div");
   toast.className = `toast align-items-center text-bg-${type} border-0`;
   toast.setAttribute("role", "alert");
