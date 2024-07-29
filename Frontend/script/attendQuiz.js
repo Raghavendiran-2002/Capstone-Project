@@ -56,6 +56,7 @@ let currentQuestionIndex = 0;
 let warningCount = 0;
 function startQuiz(data) {
   // Disable the back button
+  var startTime = new Date().toISOString();
   history.pushState(null, null, location.href);
   window.onpopstate = function () {
     warningCount++;
@@ -68,7 +69,7 @@ function startQuiz(data) {
       alert(
         "You have pressed the back button too many times. The quiz will now be terminated."
       );
-      submitQuiz(quizData.quizId, quizData.startTime); // Terminate the quiz
+      submitQuiz(quizData.quizId, startTime); // Terminate the quiz
     }
   };
 
@@ -95,14 +96,13 @@ function startQuiz(data) {
 
     if (duration <= 0) {
       clearInterval(interval);
-      submitQuiz(data.quizId, data.startTime);
+      submitQuiz(data.quizId, startTime);
     }
   }, 1000);
 
   // Detect when the user clicks out of the browser
   window.addEventListener("blur", handleBlur);
-
-  showQuestion(currentQuestionIndex);
+  showQuestion(currentQuestionIndex, startTime);
 }
 
 function handleBlur() {
@@ -120,7 +120,7 @@ function handleBlur() {
   }
 }
 
-function showQuestion(index) {
+function showQuestion(index, startTime) {
   const quizContent = document.getElementById("quiz-content");
   quizContent.innerHTML = "";
 
@@ -160,7 +160,7 @@ function showQuestion(index) {
     nextButton.classList.add("btn", "btn-primary");
     nextButton.addEventListener("click", () => {
       saveAnswer(index);
-      showQuestion(index + 1);
+      showQuestion(index + 1, startTime);
     });
     buttonContainer.appendChild(nextButton);
   } else {
@@ -169,7 +169,7 @@ function showQuestion(index) {
     submitButton.classList.add("btn", "btn-primary");
     submitButton.addEventListener("click", () => {
       saveAnswer(index);
-      submitQuiz(quizData.quizId, quizData.startTime);
+      submitQuiz(quizData.quizId, startTime);
     });
     buttonContainer.appendChild(submitButton);
   }
@@ -190,6 +190,7 @@ function saveAnswer(index) {
 }
 
 function submitQuiz(quizId, startTime) {
+  window.removeEventListener("blur", handleBlur);
   const email = localStorage.getItem("email");
   const endTime = new Date().toISOString();
 
