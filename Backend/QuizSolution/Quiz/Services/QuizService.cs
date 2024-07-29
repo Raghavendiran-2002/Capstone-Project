@@ -20,11 +20,13 @@ namespace QuizApi.Services
         private readonly ITagRepository<int, Tag> _tagRepository;
         private readonly IAttemptRepository<int, Attempt> _attemptRepository;
         private readonly IQuestionRepository<int, Question> _questionRepository;
+        private readonly IQuizTagRepository<string, QuizTag> _quizTagRepository;
         private readonly IAllowedUserRepository<int, AllowedUser> _allowedUserRepository;
 
-        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository)
+        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository, IQuizTagRepository<string, QuizTag> quizTagRepository)
         {
             _quizRepository = quizRepository;
+            _quizTagRepository = quizTagRepository;
             _certificateRepository = certificateRepository;
             _attemptRepository = attemptRepository;
             _questionRepository = questionRepository;
@@ -45,7 +47,7 @@ namespace QuizApi.Services
         {
             
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
-            var allTags = await _tagRepository.GetAllTag();
+            var allTags = (await _tagRepository.GetAllTag());
 
 
             quiz.CreatedAt = DateTime.UtcNow;
@@ -59,16 +61,18 @@ namespace QuizApi.Services
                 Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer=q.CorrectAnswers.Contains(o)}).ToList(),             
             }).ToList();
 
-   /*         if (createQuizDTO.Tags != null && createQuizDTO.Tags.Any())
-            {
-
-                quiz.QuizTags = createQuizDTO.Tags.Find(tag => tag.C(allTags.Any());
-                quiz.QuizTags = createQuizDTO.Tags.(tag => new QuizTag
+            createQuizDTO.Tags.ForEach(async t => {
+                var tag = await _tagRepository.GetTagById(t);                
+                if (tag == null)
                 {
-                    Tag = tag.con
-                }).ToList();
-            }*/
-
+                    await _tagRepository.AddTag(new Tag() { TagName = t });
+                    // or
+                    //throw new TagNotFoundException("sdagdasg");
+                }
+                quiz.QuizTags.Add(new QuizTag() { Tag = t });                
+                
+            });
+            
             if (createQuizDTO.Type == "private")
             {
                 quiz.AllowedUsers = createQuizDTO.AllowedUsers.Select(email => new AllowedUser

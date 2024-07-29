@@ -32,5 +32,10 @@ namespace QuizApi.Repositories
             var tag = (await _context.Tags.ToListAsync());
             return tag;
         }
+
+        public async Task<Tag> GetTagById(string key)
+        {
+            return await _context.Tags.FirstOrDefaultAsync(t => t.TagName == key);            
+        }
     }
 }

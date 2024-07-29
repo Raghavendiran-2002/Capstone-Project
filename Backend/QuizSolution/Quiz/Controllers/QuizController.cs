@@ -60,6 +60,11 @@ namespace QuizApi.Controllers
                 var quiz = await _quizService.CreateQuiz(createQuizDTO);
                 return Ok(quiz);
             }
+            catch (TagNotFoundException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return NotFound(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating quiz");
