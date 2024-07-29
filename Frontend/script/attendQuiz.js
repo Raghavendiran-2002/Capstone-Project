@@ -5,14 +5,22 @@ const bearer =
 document.getElementById("theme-toggle").addEventListener("change", function () {
   if (this.checked) {
     document.body.classList.add("dark-mode");
+    // Change question text color to light
+    document.querySelectorAll(".question h3, .question p").forEach((el) => {
+      el.classList.add("light-text");
+    });
   } else {
     document.body.classList.remove("dark-mode");
+    // Revert question text color to default
+    document.querySelectorAll(".question h3, .question p").forEach((el) => {
+      el.classList.remove("light-text");
+    });
   }
 });
 
 document.getElementById("start-quiz").addEventListener("click", function () {
   const quizCode = document.getElementById("quiz-code").value;
-  //  const email = localStorage.getItem("email");
+  // const email = localStorage.getItem("email");
   const email = "user@example.com";
   if (quizCode && email) {
     fetch(`${IP}/api/Quiz/attend-quiz`, {
@@ -42,31 +50,74 @@ document.getElementById("start-quiz").addEventListener("click", function () {
     );
   }
 });
+
 let quizData;
 let currentQuestionIndex = 0;
-
+let warningCount = 0;
 function startQuiz(data) {
+  // Disable the back button
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    warningCount++;
+    if (warningCount < 3) {
+      alert(
+        `Warning ${warningCount}: Pressing the back button will terminate the quiz.`
+      );
+      history.pushState(null, null, location.href); // Prevent going back
+    } else {
+      alert(
+        "You have pressed the back button too many times. The quiz will now be terminated."
+      );
+      submitQuiz(quizData.quizId, quizData.startTime); // Terminate the quiz
+    }
+  };
+
   quizData = data;
   document.getElementById("quiz-details").classList.add("d-none");
   document.getElementById("quiz-container").classList.remove("d-none");
 
-  const timerElement = document.getElementById("timer");
+  const progressBar = document.getElementById("progress-bar");
+  const timerElement = document.getElementById("timer"); // Get the timer element
   let duration = data.duration * 60; // duration in seconds
+  let totalTime = duration;
 
   const interval = setInterval(() => {
-    let minutes = Math.floor(duration / 60);
-    let seconds = duration % 60;
+    duration--;
+    const progress = ((totalTime - duration) / totalTime) * 100;
+    progressBar.style.width = `${progress}%`;
+    progressBar.setAttribute("aria-valuenow", progress);
 
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
     timerElement.textContent = `${minutes}:${
       seconds < 10 ? "0" : ""
     }${seconds}`;
-    if (--duration < 0) {
+
+    if (duration <= 0) {
       clearInterval(interval);
       submitQuiz(data.quizId, data.startTime);
     }
   }, 1000);
 
+  // Detect when the user clicks out of the browser
+  window.addEventListener("blur", handleBlur);
+
   showQuestion(currentQuestionIndex);
+}
+
+function handleBlur() {
+  warningCount++;
+  alert(
+    `Warning ${warningCount}: You have clicked out of the browser. Please stay focused on the quiz.`
+  );
+  if (warningCount == 3) {
+    alert("Last warniong");
+    // submitQuiz(quizData.quizId, quizData.startTime);
+  }
+  if (warningCount >= 4) {
+    alert("You have violated the rules. The quiz will be terminated.");
+    window.location.href = "../html/quizzes.html";
+  }
 }
 
 function showQuestion(index) {
@@ -76,34 +127,32 @@ function showQuestion(index) {
   const question = quizData.questionDto[index];
   const questionDiv = document.createElement("div");
   questionDiv.classList.add("question");
+
+  // Create the HTML structure for the question and options
   questionDiv.innerHTML = `
-    <h3>${question.questionText}</h3>
-    ${question.options
-      .map(
-        (option) => `
-          <div>
-              <input type="radio" name="question-${question.questionId}" value="${option.optionText}">
-              <label>${option.optionText}</label>
-          </div>
+    <h3 class="mb-4">Question ${index + 1} of ${
+    quizData.questionDto.length
+  }</h3>
+    <p class="mb-4">${question.questionText}</p>
+    <div class="list-group">
+      ${question.options
+        .map(
+          (option, i) => `
+        <label class="list-group-item">
+          <input type="radio" name="question-${question.questionId}" value="${
+            option.optionText
+          }">
+          ${String.fromCharCode(65 + i)}. ${option.optionText}
+        </label>
       `
-      )
-      .join("")}
+        )
+        .join("")}
+    </div>
   `;
-  quizContent.appendChild(questionDiv);
 
+  // Append the next or submit button
   const buttonContainer = document.createElement("div");
-  buttonContainer.classList.add("d-flex", "justify-content-between", "mt-3");
-
-  if (index > 0) {
-    const prevButton = document.createElement("button");
-    prevButton.textContent = "Previous";
-    prevButton.classList.add("btn", "btn-secondary");
-    prevButton.addEventListener("click", () => {
-      saveAnswer(index);
-      showQuestion(index - 1);
-    });
-    buttonContainer.appendChild(prevButton);
-  }
+  buttonContainer.classList.add("d-flex", "justify-content-end", "mt-4");
 
   if (index < quizData.questionDto.length - 1) {
     const nextButton = document.createElement("button");
@@ -125,7 +174,8 @@ function showQuestion(index) {
     buttonContainer.appendChild(submitButton);
   }
 
-  quizContent.appendChild(buttonContainer);
+  questionDiv.appendChild(buttonContainer);
+  quizContent.appendChild(questionDiv);
 }
 
 function saveAnswer(index) {
@@ -166,11 +216,12 @@ function submitQuiz(quizId, startTime) {
   })
     .then((response) => response.json())
     .then((data) => {
-      if (data.status)
+      if (data.status) {
         alert(
           `Quiz submitted successfully! ${data.status} + score: ${data.score}`
         );
-      window.location.reload();
+        window.location.href = "../html/quizzes.html";
+      }
     })
     .catch((error) => console.error("Error:", error));
 }

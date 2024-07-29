@@ -29,6 +29,9 @@ function displayQuizzes(quizzes) {
   quizList.innerHTML = "";
 
   quizzes.forEach((quiz) => {
+    const currentTime = new Date();
+    if (new Date(quiz.endTime) < currentTime) return; // Skip quizzes that have ended
+
     const quizItem = document.createElement("div");
     quizItem.className = "list-group-item";
 
@@ -56,7 +59,11 @@ function toggleQuizDetails(quizItem, quiz) {
     detailsDiv.className = "quiz-details mt-3";
 
     const detailsHTML = `
-      <p><strong>Duration:</strong> ${quiz.duration} minutes</p>
+      <p><strong>Duration:</strong> ${
+        quiz.duration > 60
+          ? (quiz.duration / 60).toFixed(2) + " hr"
+          : quiz.duration + " minutes"
+      }</p>
       <p><strong>Start Time:</strong> ${new Date(
         quiz.startTime
       ).toLocaleString()}</p>
@@ -80,6 +87,15 @@ function toggleQuizDetails(quizItem, quiz) {
       `;
     }
 
+    // Append the attend button here, after details
+    const attendButton = document.createElement("button");
+    attendButton.className = "btn btn-secondary mt-2";
+    attendButton.innerText = "Attend Quiz";
+    attendButton.onclick = () => {
+      window.location.href = `attendQuiz.html?quizId=${quiz.id}`; // Assuming quiz.id contains the quiz ID
+    };
+
+    detailsDiv.appendChild(attendButton); // Append the button to the details div
     quizItem.appendChild(detailsDiv);
   }
 }

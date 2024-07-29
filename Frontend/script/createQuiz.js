@@ -47,13 +47,27 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("submit", function (event) {
       event.preventDefault();
 
+      const startTime = new Date(document.getElementById("startTime").value);
+      const endTime = new Date(document.getElementById("endTime").value);
+      const currentTime = new Date();
+
+      if (startTime < currentTime) {
+        alert("Start time must be greater than or equal to the current time.");
+        return; // Prevent form submission
+      }
+
+      if (endTime <= startTime) {
+        alert("End time must be greater than start time.");
+        return; // Prevent form submission
+      }
+
       const quiz = {
         userId: document.getElementById("userId").value,
         topic: document.getElementById("topic").value,
         description: document.getElementById("description").value,
         duration: parseInt(document.getElementById("duration").value),
-        startTime: document.getElementById("startTime").value,
-        endTime: document.getElementById("endTime").value,
+        startTime: startTime.toISOString(), // Ensure proper format
+        endTime: endTime.toISOString(), // Ensure proper format
         type: document.getElementById("type").value,
         questions: [],
         allowedUsers: [],
