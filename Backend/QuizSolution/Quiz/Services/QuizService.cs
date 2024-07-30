@@ -6,6 +6,7 @@ using QuizApi.Interfaces.Repository;
 using QuizApi.Interfaces.Service;
 using QuizApi.Repositories;
 using QuizApp.Models;
+using System.Text;
 
 namespace QuizApi.Services
 {
@@ -47,8 +48,6 @@ namespace QuizApi.Services
         {
             
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
-            var allTags = (await _tagRepository.GetAllTag());
-
 
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.Code = GenerateUniqueCode();
@@ -61,23 +60,48 @@ namespace QuizApi.Services
                 Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer=q.CorrectAnswers.Contains(o)}).ToList(),             
             }).ToList();
 
-            createQuizDTO.Tags.ForEach(async t => {
-                var tag = await _tagRepository.GetTagById(t);                
-                if (tag == null)
-                {
-                    await _tagRepository.AddTag(new Tag() { TagName = t });
-                    // or
-                    //throw new TagNotFoundException("sdagdasg");
-                }
-                quiz.QuizTags.Add(new QuizTag() { Tag = t });                
-                
-            });
-            
+
+
             if (createQuizDTO.Type == "private")
             {
+              /*  var httpClient = new HttpClient();
+                var url = "https://email.raghav.cloud/api/";
+
+                foreach (var email in createQuizDTO.AllowedUsers)
+                {
+                    // Check if user exists
+                    var existingUser = await _userRepository.GetUserByEmail(email);
+                    if (existingUser == null)
+                    {
+                        // Create new user
+                        var newUser = new User() { Email = email, Password = "pass@123" };
+                        await _userRepository.AddUser(newUser);
+
+                        // Prepare the request body
+                        var requestBody = new
+                        {
+                            email = email,
+                            QuizId = quiz.QuizId, // Ensure you have a way to get the Quiz ID
+                            QuizCode = quiz.Code,
+                            password = "pass@123"
+                        };
+
+                        // Send POST request
+                        var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                        var response = await httpClient.PostAsync(url, content);
+                
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            // Handle the error appropriately
+                            throw new Exception($"Failed to post to {url}: {response.ReasonPhrase}");
+                        }
+                    }
+                }*/
+
+
                 quiz.AllowedUsers = createQuizDTO.AllowedUsers.Select(email => new AllowedUser
                 {
-                    User = _userRepository.GetUserByEmail(email).Result 
+                    User = _userRepository.GetUserByEmail(email).Result
                 }).ToList();
             }
 
@@ -91,7 +115,7 @@ namespace QuizApi.Services
 
         private Quiz MapCreateQuizDTOtoQuiz(CreateQuizDTO createQuizDTO)
         {
-            var quiz = new Quiz() {CreatorId = createQuizDTO.UserId, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Music = createQuizDTO.Music, Type = createQuizDTO.Type };
+            var quiz = new Quiz() {CreatorId = createQuizDTO.UserId, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Type = createQuizDTO.Type , DurationPerQuestion = createQuizDTO.DurationPerQuestion };
             return quiz;
         }
 
@@ -111,7 +135,7 @@ namespace QuizApi.Services
                 throw new InvalidQuizCodeException("Invalid Quiz Code");
             }
 
-            if (!(quiz.StartTime < DateTime.UtcNow & quiz.EndTime > DateTime.UtcNow))
+            if (!(quiz.StartTime < DateTime.Now & quiz.EndTime > DateTime.Now))
                 throw new QuizTimeException("Quiz Time Not Allowed");
 
 
@@ -130,7 +154,8 @@ namespace QuizApi.Services
                 StartTime = quiz.StartTime,
                 EndTime = quiz.EndTime,
                 Duration = quiz.Duration,
-                QuestionDto = await GetQuizQuestions(quiz.QuizId)
+                QuestionDto = await GetQuizQuestions(quiz.QuizId),
+                DurationPerQuestion = quiz.DurationPerQuestion,
             };
             
         }
@@ -184,9 +209,27 @@ namespace QuizApi.Services
                 UserId = user.UserId,
                 QuizId = completeQuizDTO.QuizId,
                 Score = (int)scorePercentage,
-                CompletedAt = DateTime.UtcNow
+                CompletedAt = DateTime.UtcNow,                                    
             };
             await _attemptRepository.AddAttempt(attempt);
+            // Create and save answers
+            /*foreach (var userAnswer in completeQuizDTO.Answers)
+            {
+                foreach (var selectedAnswerId in userAnswer.SelectedAnswers)
+                {
+                    var answer = new Answer
+                    {
+                        AttemptId = attempt.AttemptId,
+
+                        QuestionId = userAnswer.QuestionId,
+                        OptionId = 
+                    };
+
+                    await _answerRepository.AddAnswer(answer);
+                }
+            }
+
+            await _answerRepository.SaveChangesAsync();*/
 
             var status = "fail";
             // Award certificates based on the score and time taken

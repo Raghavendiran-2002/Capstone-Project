@@ -33,7 +33,7 @@ namespace QuizApi
                 .ForMember(dest => dest.Certificate, opt => opt.MapFrom(src => src.Certificate));
             CreateMap<Certificate, CertificateProfileDTO>();
             CreateMap<QuizDTO, Quiz>()
-            .ForMember(dest => dest.QuizTags, opt => opt.MapFrom(src => src.Tags.Select(tag => new QuizTag { Tag = tag }).ToList()))
+         
             .ForMember(dest => dest.Questions, opt => opt.Ignore())
             .ForMember(dest => dest.AllowedUsers, opt => opt.Ignore())
             .ForMember(dest => dest.Attempts, opt => opt.Ignore())

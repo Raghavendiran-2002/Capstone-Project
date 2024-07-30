@@ -8,6 +8,8 @@
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int Duration { get; set; }
+        public bool DurationPerQuestion { get; set; }
+
         public IEnumerable< QuestionDTO>? QuestionDto {get;set;}
     }
 }

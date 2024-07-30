@@ -15,7 +15,7 @@ namespace QuizApp.Models
         [Required]
         public string Password { get; set; }
 
-        [Required]
+     
         public string Name { get; set; }
 
         public DateTime CreatedAt { get; set; }

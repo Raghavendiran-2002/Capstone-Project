@@ -72,7 +72,7 @@ namespace QuizApp
             var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
             //var connectionString = $"Server={DBHOST};Database={DBNAME};User ID=sa;Password={DBPASS};TrustServerCertificate=True;Integrated Security=True;MultipleActiveResultSets=true";
             var connectionString = "Data Source = GRMCBX3; Integrated Security = true; Initial Catalog = dbQuiz";
-
+            
             builder.Services.AddDbContext<DBQuizContext>(options =>
             {
                 options.UseSqlServer(connectionString);
