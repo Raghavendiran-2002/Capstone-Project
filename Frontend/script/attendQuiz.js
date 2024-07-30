@@ -2,90 +2,135 @@ const IP = "https://quizbackend.raghavendiran.cloud";
 const bearer =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo";
 
-document.getElementById("theme-toggle").addEventListener("change", function () {
+// Initialize event listeners
+function initEventListeners() {
+  document
+    .getElementById("theme-toggle")
+    .addEventListener("change", toggleTheme);
+  document
+    .getElementById("start-quiz")
+    .addEventListener("click", startQuizHandler);
+}
+
+// Toggle theme function
+function toggleTheme() {
   const sunIcon = document.getElementById("sun-icon");
   const moonIcon = document.getElementById("moon-icon");
   if (this.checked) {
     document.body.classList.add("dark-mode");
     sunIcon.src = "../public/icon-sun-light.svg";
     moonIcon.src = "../public/icon-moon-light.svg";
-    // Change question text color to light
     document.querySelectorAll(".question h3, .question p").forEach((el) => {
       el.classList.add("light-text");
     });
   } else {
     document.body.classList.remove("dark-mode");
-    // Revert question text color to default
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
     document.querySelectorAll(".question h3, .question p").forEach((el) => {
       el.classList.remove("light-text");
     });
-    sunIcon.src = "../public/icon-sun-dark.svg";
-    moonIcon.src = "../public/icon-moon-dark.svg";
   }
-});
+}
 
-document.getElementById("start-quiz").addEventListener("click", function () {
+// Start quiz handler
+function startQuizHandler() {
+  window.addEventListener("blur", handleBlur);
   const quizCode = document.getElementById("quiz-code").value;
-  // const email = localStorage.getItem("email");
-  const email = "user@example.com";
+  const email = "user@example.com"; // Replace with actual email retrieval if needed
   if (quizCode && email) {
-    fetch(`${IP}/api/Quiz/attend-quiz`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${bearer}`,
-      },
-      body: JSON.stringify({
-        code: quizCode,
-        quizId: 9, // Assuming the code is the quiz ID
-        email: email,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.quizId) {
-          startQuiz(data);
-        } else {
-          alert("Invalid quiz code. Please try again.");
-        }
-      })
-      .catch((error) => console.error("Error:", error));
+    const startButton = this;
+    setLoadingState(startButton);
+    fetchQuizData(quizCode, email, startButton);
   } else {
-    alert(
-      "Please enter the quiz code and ensure your email is saved in localStorage."
+    showToast(
+      "Please enter the quiz code and ensure your email is saved in localStorage.",
+      "error"
     );
   }
-});
+}
 
+// Set loading state for the button
+function setLoadingState(button) {
+  button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...`;
+  button.disabled = true; // Disable the button
+}
+
+// Fetch quiz data from the server
+function fetchQuizData(quizCode, email, startButton) {
+  fetch(`${IP}/api/Quiz/attend-quiz`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${bearer}`,
+    },
+    body: JSON.stringify({ code: quizCode, quizId: 7, email: email }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.quizId) {
+        startQuiz(data);
+      } else {
+        showToast("Invalid quiz code. Please try again.", "error");
+        resetButton(startButton);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      showToast("An error occurred while starting the quiz.", "error");
+      resetButton(startButton);
+    });
+}
+
+// Reset button to its original state
+function resetButton(button) {
+  button.innerHTML = "Start Quiz";
+  button.disabled = false;
+}
+
+// Start the quiz
 let quizData;
 let currentQuestionIndex = 0;
 let warningCount = 0;
+let questionInterval; // Declare questionInterval globally
+
 function startQuiz(data) {
-  // Disable the back button
+  console.log(data);
   var startTime = new Date().toISOString();
+  setupBackButtonWarning(startTime);
+  quizData = data;
+  document.getElementById("quiz-details").classList.add("d-none");
+  document.getElementById("quiz-container").classList.remove("d-none");
+  startTimer(startTime);
+  showQuestion(currentQuestionIndex, startTime, data.durationPerQuestion);
+}
+
+// Setup back button warning
+function setupBackButtonWarning(startTime) {
   history.pushState(null, null, location.href);
   window.onpopstate = function () {
     warningCount++;
     if (warningCount < 3) {
-      alert(
-        `Warning ${warningCount}: Pressing the back button will terminate the quiz.`
+      showToast(
+        `Warning ${warningCount}: Pressing the back button will terminate the quiz.`,
+        "error"
       );
       history.pushState(null, null, location.href); // Prevent going back
     } else {
-      alert(
-        "You have pressed the back button too many times. The quiz will now be terminated."
+      showToast(
+        "You have pressed the back button too many times. The quiz will now be terminated.",
+        "error"
       );
       submitQuiz(quizData.quizId, startTime); // Terminate the quiz
     }
   };
+}
 
-  quizData = data;
-  document.getElementById("quiz-details").classList.add("d-none");
-  document.getElementById("quiz-container").classList.remove("d-none");
-
+// Start the timer
+function startTimer(startTime) {
   const progressBar = document.getElementById("progress-bar");
-  const timerElement = document.getElementById("timer"); // Get the timer element
-  let duration = data.duration * 60; // duration in seconds
+  const timerElement = document.getElementById("timer");
+  let duration = quizData.duration * 60;
   let totalTime = duration;
 
   const interval = setInterval(() => {
@@ -102,31 +147,16 @@ function startQuiz(data) {
 
     if (duration <= 0) {
       clearInterval(interval);
-      submitQuiz(data.quizId, startTime);
+      submitQuiz(quizData.quizId, startTime);
     }
   }, 1000);
-
-  // Detect when the user clicks out of the browser
-  window.addEventListener("blur", handleBlur);
-  showQuestion(currentQuestionIndex, startTime);
 }
 
-function handleBlur() {
-  warningCount++;
-  alert(
-    `Warning ${warningCount}: You have clicked out of the browser. Please stay focused on the quiz.`
-  );
-  if (warningCount == 3) {
-    alert("Last warniong");
-    // submitQuiz(quizData.quizId, quizData.startTime);
+// Show question
+function showQuestion(index, startTime, durationPerQuestion) {
+  if (durationPerQuestion) {
+    resetTimer();
   }
-  if (warningCount >= 4) {
-    alert("You have violated the rules. The quiz will be terminated.");
-    window.location.href = "../html/quizzes.html";
-  }
-}
-
-function showQuestion(index, startTime) {
   const quizContent = document.getElementById("quiz-content");
   quizContent.innerHTML = "";
 
@@ -134,7 +164,6 @@ function showQuestion(index, startTime) {
   const questionDiv = document.createElement("div");
   questionDiv.classList.add("question");
 
-  // Create the HTML structure for the question and options
   questionDiv.innerHTML = `
     <h3 class="mb-4">Question ${index + 1} of ${
     quizData.questionDto.length
@@ -156,25 +185,20 @@ function showQuestion(index, startTime) {
     </div>
   `;
 
-  // Append the next or submit button
   const buttonContainer = document.createElement("div");
   buttonContainer.classList.add("d-flex", "justify-content-end", "mt-4");
 
   if (index < quizData.questionDto.length - 1) {
-    const nextButton = document.createElement("button");
-    nextButton.textContent = "Next";
-    nextButton.classList.add("btn", "btn-primary");
-    nextButton.addEventListener("click", () => {
+    const nextButton = createButton("Next", () => {
       saveAnswer(index);
-      showQuestion(index + 1, startTime);
+      showQuestion(index + 1, startTime, durationPerQuestion);
     });
     buttonContainer.appendChild(nextButton);
   } else {
-    const submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
-    submitButton.classList.add("btn", "btn-primary");
-    submitButton.addEventListener("click", () => {
+    const submitButton = createButton("Submit", () => {
       saveAnswer(index);
+      submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
+      submitButton.disabled = true; // Disable the button
       submitQuiz(quizData.quizId, startTime);
     });
     buttonContainer.appendChild(submitButton);
@@ -184,28 +208,86 @@ function showQuestion(index, startTime) {
   quizContent.appendChild(questionDiv);
 }
 
+// Create a button
+function createButton(text, onClick) {
+  const button = document.createElement("button");
+  button.textContent = text;
+  button.classList.add("btn", "btn-primary");
+  button.addEventListener("click", onClick);
+  return button;
+}
+function handleBlur() {
+  warningCount++;
+  showToast(
+    `Warning ${warningCount}: You have clicked out of the browser. Please stay focused on the quiz.`,
+    "error"
+  );
+  if (warningCount == 3) {
+    showToast("Last warning", "error");
+  }
+  if (warningCount >= 4) {
+    showToast(
+      "You have violated the rules. The quiz will be terminated.",
+      "error"
+    );
+    window.location.href = "../html/quizzes.html";
+  }
+}
+
+// Reset timer for the current question
+function resetTimer() {
+  clearInterval(questionInterval); // Clear any existing interval
+  let questionDuration = quizData.duration * 60; // duration per question in seconds
+  const timerElement = document.getElementById("timer");
+  const progressBar = document.getElementById("progress-bar");
+  const totalTime = questionDuration; // Store the total time for progress calculation
+
+  questionInterval = setInterval(() => {
+    const progress = ((totalTime - questionDuration) / totalTime) * 100;
+    progressBar.style.width = `${progress}%`;
+    progressBar.setAttribute("aria-valuenow", progress);
+
+    const minutes = Math.floor(questionDuration / 60);
+    const seconds = questionDuration % 60;
+    timerElement.textContent = `${minutes}:${
+      seconds < 10 ? "0" : ""
+    }${seconds}`;
+
+    questionDuration--; // Decrement the duration
+
+    if (questionDuration < 0) {
+      clearInterval(questionInterval);
+      saveAnswer(currentQuestionIndex); // Save answer before moving to the next question
+      showQuestion(
+        currentQuestionIndex + 1,
+        startTime,
+        quizData.durationPerQuestion
+      ); // Move to the next question when time is up
+    }
+  }, 1000);
+}
+
+// Save answer
 function saveAnswer(index) {
   const question = quizData.questionDto[index];
   const selectedAnswer = document.querySelector(
     `input[name="question-${question.questionId}"]:checked`
   );
-
   quizData.questionDto[index].selectedAnswer = selectedAnswer
     ? selectedAnswer.value
     : "";
 }
 
+// Submit quiz
 function submitQuiz(quizId, startTime) {
   window.removeEventListener("blur", handleBlur);
   const email = localStorage.getItem("email");
   const endTime = new Date().toISOString();
 
-  const answers = quizData.questionDto.map((question) => {
-    return {
-      questionId: question.questionId,
-      selectedAnswers: [question.selectedAnswer || ""],
-    };
-  });
+  const answers = quizData.questionDto.map((question) => ({
+    questionId: question.questionId,
+    selectedAnswers: [question.selectedAnswer || ""],
+  }));
 
   fetch(`${IP}/api/Quiz/complete-quiz`, {
     method: "POST",
@@ -224,11 +306,37 @@ function submitQuiz(quizId, startTime) {
     .then((response) => response.json())
     .then((data) => {
       if (data.status) {
-        alert(
-          `Quiz submitted successfully! ${data.status} + score: ${data.score}`
+        showToast(
+          `Quiz submitted successfully! ${data.status} + score: ${data.score}`,
+          "success"
         );
-        window.location.href = "../html/quizzes.html";
+        setTimeout(() => {
+          window.location.href = "../html/quizzes.html";
+        }, 5000); // 5000 milliseconds = 5 seconds
       }
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => {
+      console.error("Error:", error);
+      showToast("An error occurred while submitting the quiz.", "error");
+    });
 }
+
+// Show toast messages
+function showToast(message, type) {
+  const toastBody = document.getElementById("error-message");
+  const successToast = document.getElementById("success-toast");
+  const errorToast = document.getElementById("error-toast");
+
+  if (type === "success") {
+    successToast.querySelector(".toast-body").textContent = message;
+    const toast = new bootstrap.Toast(successToast);
+    toast.show();
+  } else {
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(errorToast);
+    toast.show();
+  }
+}
+
+// Initialize the application
+initEventListeners();
