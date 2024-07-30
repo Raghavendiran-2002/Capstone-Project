@@ -7,6 +7,7 @@ using QuizApi.Interfaces.Service;
 using QuizApi.Repositories;
 using QuizApp.Models;
 using System.Text;
+using System.Text.Json;
 
 namespace QuizApi.Services
 {
@@ -232,6 +233,7 @@ namespace QuizApi.Services
             await _answerRepository.SaveChangesAsync();*/
 
             var status = "fail";
+            var certUrl = "";
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
@@ -240,15 +242,18 @@ namespace QuizApi.Services
                 // Check if the special certificate conditions are met
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
+                    var certDetails = GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = "Special"});
                     var  spccertificate = new Certificate
                     {
                         AttemptId = attempt.AttemptId,
                         UserId = user.UserId,
                         QuizId = completeQuizDTO.QuizId,
-                        Url = "Special",
+                        Url = certDetails.pdfUrl,
                         CertType = "Special",
                         // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
                     };
+                    certUrl = certDetails.pdfUrl;
+
                     await _certificateRepository.AddCertificate(spccertificate);
                 }
                 var certificate = new Certificate
@@ -262,10 +267,27 @@ namespace QuizApi.Services
 
                 await _certificateRepository.AddCertificate(certificate);
             }            
-            return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic,Score = scorePercentage, CertUrl = "certurl",Status = status};
+            return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic,Score = scorePercentage, CertUrl = certUrl,Status = status};
         }
-       
 
+        private GenerateCertReturnDTO GenerateCertificate(GenerateCertDTO cert)
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://certfunctionraghav.azurewebsites.net/api/");
+            var json = JsonSerializer.Serialize(cert);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = client.PostAsync("generatecertificate", content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContext = response.Content.ReadAsStringAsync().Result;
+                var certResponse = JsonSerializer.Deserialize<GenerateCertReturnDTO>(responseContext);
+                return certResponse;
+            }
+            else
+            {
+                throw new CertificateNotGenerated("Certificate not Generated");
+            }
+        }
         private string GenerateUniqueCode()
         {
             return new Random().Next(100000, 999999).ToString();
