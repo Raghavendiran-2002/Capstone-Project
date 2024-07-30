@@ -43,6 +43,10 @@
                 <input type="number" class="form-control" id="duration" required>
             </div>
             <div class="mb-3">
+                <label for="durationPerQuestion" class="form-label">Duration Per Question</label>
+                <input type="checkbox" id="durationPerQuestion" class="form-check-input">
+            </div>
+            <div class="mb-3">
                 <label for="startTime" class="form-label">Start Time</label>
                 <input type="datetime-local" class="form-control" id="startTime" required>
             </div>
@@ -61,12 +65,37 @@
                 <label for="allowedUsers" class="form-label">Allowed Users (Emails, comma-separated)</label>
                 <input type="text" class="form-control" id="allowedUsers">
             </div>
-            <button type="submit" class="btn btn-primary">Create Quiz</button>
+            <button type="submit" class="btn btn-primary" id="create-quiz-btn">
+                Create Quiz
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
         </form>
     </div>
-    <div class="toggle-switch">
+    <div class="toggle-switch d-flex align-items-center">
+        <img src="../public/icon-sun-dark.svg" alt="sun icon" id="sun-icon" class="toggle-icon">
         <input type="checkbox" id="theme-toggle" class="toggle-input">
         <label for="theme-toggle" class="toggle-label"></label>
+        <img src="../public/icon-moon-dark.svg" alt="moon icon" id="moon-icon" class="toggle-icon">
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="success-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Registration successful!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <div id="error-toast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="error-message"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <div id="unauthorizedToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">You are not authorized to access this page.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/script/createQuiz.js"></script>

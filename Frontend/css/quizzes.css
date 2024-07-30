@@ -7,7 +7,7 @@ body {
     background-repeat: no-repeat;
 }
 
-h1 strong {
+h1, p {
     color: #495057;
 }
 
@@ -70,20 +70,38 @@ body.dark-mode {
     color: #f8f9fa;
     background-image: url('/public/pattern-background-desktop-dark.svg');
 }
-.dark-mode .list-group-item-action {
-    color: white; /* Change text color to white in dark mode */
-}
 
-body.dark-mode .list-group-item {
+.dark-mode .list-group-item {
     background-color: #343a40;
     color: #f8f9fa;
 }
 
-body.dark-mode .list-group-item:hover {
+
+.dark-mode .list-group-item:hover {
     background-color: #495057;
 }
 
+        
+
+        .toggle-icon {
+            width: 24px; 
+            height: 24px; 
+            margin: 0 10px;
+        }   
+       
+
 .quiz-list {
-    max-height: 550px; /* Adjust height as needed */
+    max-height: 550px;
     overflow-y: auto;
+}
+
+.quiz-details {
+    background-color: #e9ecef;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: max-height 0.3s ease;
+}
+
+.quiz-details p, .quiz-details .btn {
+    margin-bottom: 0.5rem;
 }

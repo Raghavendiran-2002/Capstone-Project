@@ -64,6 +64,20 @@ h1 strong {
 .toggle-input:checked + .toggle-label::before {
     transform: translateX(20px);
 }
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    cursor: pointer; 
+}
+
+.toggle-icon {
+    width: 24px; 
+    height: 24px; 
+    margin: 0 10px;
+
+.toggle-input {
+    display: none; 
+}
 
 body.dark-mode {
     background-color: #212529;

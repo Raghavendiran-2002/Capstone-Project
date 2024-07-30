@@ -7,19 +7,26 @@ body {
     background-repeat: no-repeat;
 }
 
-h1 strong {
-    color: #495057;
-}
-
 .toggle-switch {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
 
-.toggle-input {
-    display: none;
+.toggle-icon {
+    width: 24px; 
+    height: 24px; 
+    margin: 0 10px;
 }
+.toggle-input {
+    display: none; 
+}
+h1 strong {
+    color: #495057;
+}
+
+
+
 
 .toggle-label {
     width: 40px;

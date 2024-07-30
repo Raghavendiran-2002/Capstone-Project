@@ -1,10 +1,21 @@
 const IP = "https://quizbackend.raghavendiran.cloud";
 
+document.addEventListener("DOMContentLoaded", function () {
+  localStorage.clear(); // Clear all local storage items
+});
+
 document.getElementById("theme-toggle").addEventListener("change", function () {
+  const sunIcon = document.getElementById("sun-icon");
+  const moonIcon = document.getElementById("moon-icon");
+
   if (this.checked) {
     document.body.classList.add("dark-mode");
+    sunIcon.src = "../public/icon-sun-light.svg";
+    moonIcon.src = "../public/icon-moon-light.svg";
   } else {
     document.body.classList.remove("dark-mode");
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
   }
 });
 
@@ -12,6 +23,11 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
   e.preventDefault();
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const loginButton = document.querySelector("button[type='submit']");
+
+  // Disable the button and show spinner
+  loginButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loggin In...`;
+  loginButton.disabled = true;
 
   const data = {
     email: email,
@@ -28,17 +44,25 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
   })
     .then((response) => response.json())
     .then((data) => {
+      // Re-enable the button and reset its content
+      loginButton.innerHTML = "Login";
+      loginButton.disabled = false;
+
       if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.userId);
         localStorage.setItem("email", data.user.email);
-        showToast("Registration successful!", "success");
+        showToast("Login successful!", "success");
         window.location.href = "../html/quizzes.html";
       } else {
         showToast(data.message, "danger");
       }
     })
     .catch((error) => {
+      // Re-enable the button and reset its content
+      loginButton.innerHTML = "Login";
+      loginButton.disabled = false;
+
       showToast("An error occurred. Please try again.", "danger");
       console.error("Error:", error);
     });

@@ -92,7 +92,20 @@ body.dark-mode .list-group-item:hover {
     font-size: 1.2rem;
     color: #d6d9db;
   }
-  
+  .toggle-switch {
+    display: flex;
+    align-items: center;
+    cursor: pointer; 
+}
+
+.toggle-icon {
+    width: 24px; 
+    height: 24px; 
+    margin: 0 10px;
+
+.toggle-input {
+    display: none; 
+}
   body.dark-mode .question h3{
     color: #d6d9db;
   }

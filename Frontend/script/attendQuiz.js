@@ -3,8 +3,12 @@ const bearer =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo";
 
 document.getElementById("theme-toggle").addEventListener("change", function () {
+  const sunIcon = document.getElementById("sun-icon");
+  const moonIcon = document.getElementById("moon-icon");
   if (this.checked) {
     document.body.classList.add("dark-mode");
+    sunIcon.src = "../public/icon-sun-light.svg";
+    moonIcon.src = "../public/icon-moon-light.svg";
     // Change question text color to light
     document.querySelectorAll(".question h3, .question p").forEach((el) => {
       el.classList.add("light-text");
@@ -15,6 +19,8 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
     document.querySelectorAll(".question h3, .question p").forEach((el) => {
       el.classList.remove("light-text");
     });
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
   }
 });
 
