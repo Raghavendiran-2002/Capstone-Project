@@ -12,6 +12,9 @@ namespace QuizApi.Dtos.Quiz
 
         [StringLength(500)]
         public string Description { get; set; }
+        [Required]
+        public string ImageURL { get; set; }
+
 
         [Range(1, 180)]
         public int Duration { get; set; }

@@ -62,42 +62,30 @@ namespace QuizApi.Services
             }).ToList();
 
 
-
+            var inviteUserToQuiz = new List<string>();
+            var inviteUserToApp = new List<string>();
             if (createQuizDTO.Type == "private")
             {
-              /*  var httpClient = new HttpClient();
-                var url = "https://email.raghav.cloud/api/";
 
+               
                 foreach (var email in createQuizDTO.AllowedUsers)
                 {
-                    // Check if user exists
+                    
                     var existingUser = await _userRepository.GetUserByEmail(email);
+                    
                     if (existingUser == null)
                     {
-                        // Create new user
-                        var newUser = new User() { Email = email, Password = "pass@123" };
+                        inviteUserToApp.Add(email);
+                        var newUser = new User() {Name=email, Email = email, Password = "pass@123"};
                         await _userRepository.AddUser(newUser);
 
-                        // Prepare the request body
-                        var requestBody = new
-                        {
-                            email = email,
-                            QuizId = quiz.QuizId, // Ensure you have a way to get the Quiz ID
-                            QuizCode = quiz.Code,
-                            password = "pass@123"
-                        };
-
-                        // Send POST request
-                        var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-                        var response = await httpClient.PostAsync(url, content);
-                
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            // Handle the error appropriately
-                            throw new Exception($"Failed to post to {url}: {response.ReasonPhrase}");
-                        }
+                        
                     }
-                }*/
+                    else
+                    {
+                        inviteUserToQuiz.Add(email);
+                    }
+                }
 
 
                 quiz.AllowedUsers = createQuizDTO.AllowedUsers.Select(email => new AllowedUser
@@ -110,13 +98,33 @@ namespace QuizApi.Services
             quiz = await _quizRepository.AddQuiz(quiz);
             
             var quizDTO = _mapper.Map<QuizDTO>(quiz);
+            //SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("new User Register Your password : pass@123 User can attend Quiz : {0}", quiz), body = "Invite User to App", quizId = quiz.QuizId, recipients = inviteUserToApp });
+            //SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("User can attend Quiz : {0}", quiz), body = "Invite User to Quiz", quizId = quiz.QuizId, recipients = inviteUserToQuiz });
 
             return quizDTO;
         }
-
+        private SendInviteReturnDTO SendInvitationToNewUsers(SendInviteDTO sendInviteDTO)
+        {
+            var client = new HttpClient();
+            var url = "https://mailfunction.azurewebsites.net/api/";
+            client.BaseAddress = new Uri(url);
+            var json = JsonSerializer.Serialize(sendInviteDTO);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = client.PostAsync("SendEmailFunction?code=LKds33wD5BflPw7XSLaWZG4gfhZv1R2kp2y0-g-KoEDYAzFuWt5Fmg%3D%3D", content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContext = response.Content.ReadAsStringAsync().Result;
+                var certResponse = JsonSerializer.Deserialize<SendInviteReturnDTO>(responseContext);
+                return certResponse;
+            }
+            else
+            {
+                throw new InviteNotSendException("Invite Not Send");
+            }
+        }
         private Quiz MapCreateQuizDTOtoQuiz(CreateQuizDTO createQuizDTO)
         {
-            var quiz = new Quiz() {CreatorId = createQuizDTO.UserId, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Type = createQuizDTO.Type , DurationPerQuestion = createQuizDTO.DurationPerQuestion };
+            var quiz = new Quiz() {CreatorId = createQuizDTO.UserId, ImageURL = createQuizDTO.ImageURL, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Type = createQuizDTO.Type , DurationPerQuestion = createQuizDTO.DurationPerQuestion };
             return quiz;
         }
 
@@ -242,17 +250,20 @@ namespace QuizApi.Services
                 // Check if the special certificate conditions are met
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
-                    var certDetails = GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = "Special"});
+                    //var certDetails = GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = "Special"});
+                    
                     var  spccertificate = new Certificate
                     {
                         AttemptId = attempt.AttemptId,
                         UserId = user.UserId,
                         QuizId = completeQuizDTO.QuizId,
-                        Url = certDetails.pdfUrl,
+                        Url = "Scecas",
+                        //Url = certDetails.pdfUrl,
                         CertType = "Special",
                         // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
                     };
-                    certUrl = certDetails.pdfUrl;
+                    certUrl = "klhklj";
+                    //certUrl = certDetails.pdfUrl;
 
                     await _certificateRepository.AddCertificate(spccertificate);
                 }

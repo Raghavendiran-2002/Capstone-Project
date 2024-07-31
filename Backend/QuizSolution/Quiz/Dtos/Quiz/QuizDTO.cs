@@ -6,8 +6,9 @@
         public string Topic { get; set; }
         public string Description { get; set; }
         public int Duration { get; set; }
+        public string ImageURL { get; set; }
 
-        public  bool DurationPerQuestion { get; set; }
+        public bool DurationPerQuestion { get; set; }
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }  

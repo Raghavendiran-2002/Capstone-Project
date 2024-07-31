@@ -71,8 +71,8 @@ namespace QuizApp
             var DBPASS = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
             var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
             //var connectionString = $"Server={DBHOST};Database={DBNAME};User ID=sa;Password={DBPASS};TrustServerCertificate=True;Integrated Security=True;MultipleActiveResultSets=true";
-            //var connectionString = "Data Source = GRMCBX3; Integrated Security = true; Initial Catalog = dbQuiz";
-            var connectionString = "Server=tcp:sql-server-raghav.database.windows.net,1433;Initial Catalog=raghav;Persist Security Info=False;User ID=raghav;Password=pass@123;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;";
+            var connectionString = "Data Source = GRMCBX3; Integrated Security = true; Initial Catalog = dbQuiz";
+            //var connectionString = "Server=tcp:sql-server-raghav.database.windows.net,1433;Initial Catalog=raghav;Persist Security Info=False;User ID=raghav;Password=pass@123;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;";
             builder.Services.AddDbContext<DBQuizContext>(options =>
             {
                 options.UseSqlServer(connectionString);

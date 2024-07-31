@@ -13,7 +13,7 @@ namespace QuizApp.Models
 
         [Required]
         public string Topic { get; set; }
-
+        public string ImageURL { get; set; }
         public string Description { get; set; }
         public int Duration { get; set; }
         public bool DurationPerQuestion { get; set; }
