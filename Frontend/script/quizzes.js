@@ -49,7 +49,7 @@ function fetchQuizzes() {
     headers: {
       accept: "text/plain",
       Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjE4MjEwMzAsImV4cCI6MTcyMjQyNTgzMCwiaWF0IjoxNzIxODIxMDMwfQ.Zzf4LjLhQAVRJiutJRpu2H4NTsZNvnhvV8o8L9NZfCI",
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo",
     },
   })
     .then((response) => response.json())
@@ -139,7 +139,7 @@ function createQuizCard(quiz) {
   const imgElement = createImageElement(quiz.imageURL);
   const cardBodyDiv = createCardBody(quiz);
   const detailsList = createDetailsList(quiz);
-  const btnElement = createAttendButton();
+  const btnElement = createAttendButton(quiz);
 
   cardDiv.appendChild(imgElement);
   cardDiv.appendChild(cardBodyDiv);
@@ -204,10 +204,10 @@ function createListItem(text) {
   return listItem;
 }
 
-function createAttendButton() {
+function createAttendButton(quiz) {
   const btnElement = document.createElement("a");
   btnElement.className = "btn btn-primary";
-  btnElement.href = "http://127.0.0.1:5500/html/attendQuiz.html";
+  btnElement.href = `../html/attendQuiz.html?quizId=${quiz.quizId}`;
   btnElement.textContent = "Attend Quiz";
   return btnElement;
 }
@@ -248,7 +248,7 @@ function createQuizDetails(quiz) {
   attendButton.className = "btn btn-secondary mt-2";
   attendButton.innerText = "Attend Quiz";
   attendButton.onclick = () => {
-    window.location.href = `attendQuiz.html?quizId=${quiz.id}`;
+    window.location.href = `../html/attendQuiz.html?quizId=${quiz.id}`;
   };
 
   detailsDiv.appendChild(attendButton);

@@ -297,7 +297,7 @@ function submitQuiz(quizId, startTime) {
     },
     body: JSON.stringify({
       quizId: quizId,
-      emailId: email,
+      emailId: "raghav@gmail.com",
       startTime: startTime,
       endTime: endTime,
       answers: answers,
@@ -305,20 +305,41 @@ function submitQuiz(quizId, startTime) {
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log("data ... ");
       if (data.status) {
-        showToast(
+        console.log("status ..");
+        const certUrl = data.certUrl; // Assuming certUrl is part of the response
+        showToastCompleteQuiz(
           `Quiz submitted successfully! ${data.status} + score: ${data.score}`,
-          "success"
+          data.status,
+          certUrl
         );
-        setTimeout(() => {
-          window.location.href = "../html/quizzes.html";
-        }, 5000); // 5000 milliseconds = 5 seconds
       }
     })
     .catch((error) => {
       console.error("Error:", error);
       showToast("An error occurred while submitting the quiz.", "error");
     });
+}
+
+function showToastCompleteQuiz(message, type, certUrl) {
+  const modalMessage = document.getElementById("modal-message");
+  modalMessage.textContent = message; // Set the message in the modal
+  const quizModal = new bootstrap.Modal(document.getElementById("quizModal"));
+  console.log(type);
+
+  const understoodButton = document.getElementById("modal-understood");
+  if (type === "pass") {
+    understoodButton.textContent = "Download Certificate";
+    understoodButton.onclick = () => window.open(certUrl, "_blank"); // Open certificate URL
+  } else {
+    understoodButton.textContent = "Retry";
+    understoodButton.onclick = () => {
+      location.reload();
+    };
+  }
+
+  quizModal.show(); // Show the modal
 }
 
 // Show toast messages
