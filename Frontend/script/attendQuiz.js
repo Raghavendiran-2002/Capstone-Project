@@ -64,7 +64,7 @@ function fetchQuizData(quizCode, email, startButton) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${bearer}`,
     },
-    body: JSON.stringify({ code: quizCode, quizId: 7, email: email }),
+    body: JSON.stringify({ code: quizCode, quizId: 2, email: email }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -174,9 +174,9 @@ function showQuestion(index, startTime, durationPerQuestion) {
         .map(
           (option, i) => `
         <label class="list-group-item">
-          <input type="radio" name="question-${question.questionId}" value="${
-            option.optionText
-          }">
+          <input type="checkbox" name="question-${
+            question.questionId
+          }" value="${option.optionText}">
           ${String.fromCharCode(65 + i)}. ${option.optionText}
         </label>
       `
@@ -270,12 +270,12 @@ function resetTimer() {
 // Save answer
 function saveAnswer(index) {
   const question = quizData.questionDto[index];
-  const selectedAnswer = document.querySelector(
-    `input[name="question-${question.questionId}"]:checked`
-  );
-  quizData.questionDto[index].selectedAnswer = selectedAnswer
-    ? selectedAnswer.value
-    : "";
+  const selectedAnswers = Array.from(
+    document.querySelectorAll(
+      `input[name="question-${question.questionId}"]:checked`
+    )
+  ).map((input) => input.value);
+  quizData.questionDto[index].selectedAnswer = selectedAnswers; // Store multiple answers
 }
 
 // Submit quiz
@@ -286,7 +286,7 @@ function submitQuiz(quizId, startTime) {
 
   const answers = quizData.questionDto.map((question) => ({
     questionId: question.questionId,
-    selectedAnswers: [question.selectedAnswer || ""],
+    selectedAnswers: question.selectedAnswer,
   }));
 
   fetch(`${IP}/api/Quiz/complete-quiz`, {

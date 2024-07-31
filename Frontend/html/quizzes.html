@@ -14,8 +14,8 @@
         <div class="row justify-content-center align-items-center">
             <h1 class="mb-3">Welcome to the Quiz!</h1>
             <p class="mb-5">Pick a subject to get started.</p>
-            <div class="col-12 col-md-12">
-                <div class="list-group quiz-list" id="quiz-list">
+            <div class="fun">
+                <div class="list-group quiz-list temp" id="quiz-list">
                     <!-- Quiz items will be appended here by JavaScript -->
                 </div>
             </div>
@@ -28,6 +28,8 @@
         <label for="theme-toggle" class="toggle-label"></label>
         <img src="../public/icon-moon-dark.svg" alt="moon icon" id="moon-icon" class="toggle-icon">
         <button class="btn btn-secondary ms-2" onclick="window.location.href='profile.html'">Profile</button> <!-- Profile button -->
+        <button class="btn btn-secondary ms-2" onclick="window.location.href='createQuiz.html'">Create Quiz</button> 
+        <button class="logout btn btn-secondary ms-2" onclick="logout()">Logout</button> 
     </div>
     
     <div class="toast-container position-fixed bottom-0 end-0 p-3">

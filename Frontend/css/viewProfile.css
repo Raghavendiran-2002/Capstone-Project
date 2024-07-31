@@ -26,9 +26,10 @@ h1 strong {
 }
 
 .toggle-switch {
-    position: absolute;
+    position: fixed;
     top: 1rem;
     right: 1rem;
+    z-index: 1000;
 }
 
 .toggle-input {
@@ -64,19 +65,17 @@ h1 strong {
 .toggle-input:checked + .toggle-label::before {
     transform: translateX(20px);
 }
+
 .toggle-switch {
     display: flex;
     align-items: center;
-    cursor: pointer; 
+    cursor: pointer;
 }
 
 .toggle-icon {
-    width: 24px; 
-    height: 24px; 
+    width: 24px;
+    height: 24px;
     margin: 0 10px;
-
-.toggle-input {
-    display: none; 
 }
 
 body.dark-mode {
@@ -92,4 +91,8 @@ body.dark-mode .list-group-item {
 
 body.dark-mode .list-group-item:hover {
     background-color: #495057;
+}
+
+.card {
+    border: 1px solid #dee2e6;
 }

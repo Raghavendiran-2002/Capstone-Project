@@ -102,6 +102,7 @@ body.dark-mode .list-group-item:hover {
     width: 24px; 
     height: 24px; 
     margin: 0 10px;
+}
 
 .toggle-input {
     display: none; 
@@ -145,4 +146,25 @@ body.dark-mode .list-group-item:hover {
   .mt-4 {
     margin-top: 1.5rem !important;
   }
-  
+
+  .option {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin: 5px 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Highlight border for selected option */
+.option.selected {
+    border-color: rgb(68, 136, 245);
+    background-color: #9dbae5; /* Optional: light green background for selected */
+}
+
+/* Optional hover effect */
+.option:hover {
+    border-color: rgb(68, 136, 245);;
+}

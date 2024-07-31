@@ -1,13 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const userId = 1; // replace with the actual user ID
+  const userId = localStorage.getItem("userId"); // Get userId from localStorage
+  const token = localStorage.getItem("token"); // Get token from localStorage
+
+  if (!userId || !token) {
+    alert("User ID or token not found. Please log in again.");
+    return; // Exit if userId or token is not available
+  }
+
   const apiUrl = `https://quizbackend.raghavendiran.cloud/api/Profile/view-profile?userId=${userId}`;
-  const token =
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo"; // replace with the actual token
 
   fetch(apiUrl, {
     headers: {
       accept: "text/plain",
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     },
   })
     .then((response) => response.json())
@@ -19,19 +24,23 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("name").textContent = data.name;
         const attemptsList = document.getElementById("attempts-list");
         data.attempts.forEach((attempt) => {
-          const listItem = document.createElement("li");
-          listItem.className = "list-group-item";
+          const listItem = document.createElement("div"); // Changed to div for card style
+          listItem.className = "card mb-3"; // Bootstrap card class
           listItem.innerHTML = `
-                    <p><strong>Quiz ID:</strong> ${attempt.quizId}</p>
-                    <p><strong>Score:</strong> ${attempt.score}</p>
-                    <p><strong>Completed At:</strong> ${new Date(
-                      attempt.completedAt
-                    ).toLocaleString()}</p>
-                    ${
-                      attempt.certificate
-                        ? `<a href="${attempt.certificate.url}" class="btn btn-primary" download>Download Certificate</a>`
-                        : ""
-                    }
+                    <div class="card-body">
+                      <h5 class="card-title">Quiz ID: ${attempt.quizId}</h5>
+                      <p class="card-text"><strong>Score:</strong> ${
+                        attempt.score
+                      }</p>
+                      <p class="card-text"><strong>Completed At:</strong> ${new Date(
+                        attempt.completedAt
+                      ).toLocaleString()}</p>
+                      ${
+                        attempt.certificate
+                          ? `<a href="${attempt.certificate.url}" class="btn btn-primary" download>Download Certificate</a>`
+                          : ""
+                      }
+                    </div>
                 `;
           attemptsList.appendChild(listItem);
         });

@@ -11,19 +11,15 @@ h1, p {
     color: #495057;
 }
 
-.list-group-item {
-    font-size: 1.2rem;
-    padding: 1rem;
-    border: none;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+.fun {
+    width: 100%;
+}
+.temp{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 10px;
 }
 
-.list-group-item:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-}
 
 .toggle-switch {
     position: absolute;
@@ -90,11 +86,6 @@ body.dark-mode {
         }   
        
 
-.quiz-list {
-    max-height: 550px;
-    overflow-y: auto;
-}
-
 .quiz-details {
     background-color: #e9ecef;
     padding: 1rem;
@@ -105,3 +96,5 @@ body.dark-mode {
 .quiz-details p, .quiz-details .btn {
     margin-bottom: 0.5rem;
 }
+
+

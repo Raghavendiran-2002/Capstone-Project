@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const addQuestionButton = document.getElementById("addQuestion");
   let questionIndex = 1;
 
+  const userId = localStorage.getItem("userId"); // Fetch userId from local storage
+
   typeSelect.addEventListener("change", function () {
     if (this.value === "private") {
       allowedUsersContainer.style.display = "block";
@@ -61,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <label for="correctAnswers_${questionIndex}" class="form-label">Correct Answers</label>
                 <input type="text" class="form-control correctAnswers" id="correctAnswers_${questionIndex}" placeholder="Correct Answer(s)" required>
             </div>
+            <button type="button" class="btn btn-danger removeQuestion">Remove Question</button>
         `;
 
     questionsContainer.appendChild(questionDiv);
@@ -76,14 +79,49 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     } else if (event.target.classList.contains("removeOption")) {
       event.target.parentElement.remove();
+    } else if (event.target.classList.contains("removeQuestion")) {
+      event.target.closest(".question").remove();
     }
   });
 
   quizForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    const requiredFields = [
+      "topic",
+      "description",
+      "imageURL",
+      "duration",
+      "startTime",
+      "endTime",
+      "type",
+    ];
+    let isValid = true;
+
+    // Check each required field in order
+    for (const fieldId of requiredFields) {
+      const field = document.getElementById(fieldId);
+      if (!field.value) {
+        isValid = false;
+        showToast(
+          `Please fill out the ${field.labels[0].innerText} field.`,
+          "danger"
+        );
+        field.focus(); // Set focus to the first invalid field
+        break; // Stop checking further fields
+      }
+    }
+
+    if (!isValid) return; // Stop submission if validation fails
+
+    // Show spinner
+    const submitButton = document.getElementById("submitButton");
+    const spinner = submitButton.querySelector(".spinner-border");
+    submitButton.disabled = true; // Disable button
+    spinner.style.display = "inline-block"; // Show spinner
+
     const data = {
-      userId: parseInt(document.getElementById("userId").value),
+      userId: parseInt(userId), // Use userId from local storage
       topic: document.getElementById("topic").value,
       description: document.getElementById("description").value,
       imageURL: document.getElementById("imageURL").value,
@@ -119,23 +157,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     try {
+      const token = localStorage.getItem("token"); // Load token from local storage
       const response = await fetch(`${IP}/api/Quiz/create-quiz`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIzOTc0MzIsImV4cCI6MTcyMzAwMjIzMiwiaWF0IjoxNzIyMzk3NDMyfQ._qvaTgkFFUlmSPKJcfUNmykrSxIJc_V-cIgyVsaDr-E",
+          Authorization: `Bearer ${token}`, // Use the token from local storage
         },
         body: JSON.stringify(data),
       });
 
+      // Hide spinner
+      spinner.style.display = "none"; // Hide spinner
+      submitButton.disabled = false; // Re-enable button
+
       if (response.ok) {
         showToast("Quiz created successfully!", "success");
+        // Show additional toast message indicating the quiz has been uploaded
+        showToast("Your quiz has been uploaded!", "success");
+
+        // Clear the form
+        quizForm.reset(); // Reset the form fields
+
+        // Clear dynamically added questions and allowed users
+        questionsContainer.innerHTML = ""; // Clear questions
+        allowedUsersList.innerHTML = ""; // Clear allowed users
+        questionIndex = 1; // Reset question index
       } else {
         const errorText = await response.text();
         showToast(`Error: ${errorText}`, "danger");
       }
     } catch (error) {
+      // Hide spinner
+      spinner.style.display = "none"; // Hide spinner
+      submitButton.disabled = false; // Re-enable button
       showToast(`Error: ${error.message}`, "danger");
     }
   });
