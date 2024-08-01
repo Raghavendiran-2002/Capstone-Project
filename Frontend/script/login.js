@@ -69,10 +69,10 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
 });
 
 function showToast(message, type) {
-  const toastContainer = document.getElementById("toast-container");
+  const toastContainer = document.querySelector(".toast-container"); // Updated to use class selector
   if (!toastContainer) {
     console.error("Toast container not found");
-    return; // Exit the function if the container is not found
+    return;
   }
   const toast = document.createElement("div");
   toast.className = `toast align-items-center text-bg-${type} border-0`;
