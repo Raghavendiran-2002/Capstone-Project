@@ -6,6 +6,6 @@ namespace QuizApi.Interfaces.Service
     {
         Task<AuthResponseDTO> Register(RegisterUserDTO registerUserDTO);
         Task<AuthResponseDTO> Login(LoginUserDTO loginUserDTO);
-        Task<bool> ChangePassword(int userId, ChangePasswordDTO changePasswordDTO);
+        Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO);
     }
 }

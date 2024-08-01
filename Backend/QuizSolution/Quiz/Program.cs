@@ -9,6 +9,7 @@ using QuizApi.Repositories;
 using QuizApi.Services;
 using QuizApp.Context;
 using QuizApp.Models;
+using QuizApi.Exceptions;
 using System.Text.Json.Serialization;
 namespace QuizApp
 {
@@ -46,6 +47,8 @@ namespace QuizApp
                     }
                 });
             });
+            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "JWT";
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options =>
                {
@@ -54,7 +57,7 @@ namespace QuizApp
                        ValidateIssuer = false,
                        ValidateAudience = false,
                        ValidateIssuerSigningKey = true,
-                       IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:JWT"]))
+                       IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(userSecret))
                    };
 
                });
@@ -63,20 +66,21 @@ namespace QuizApp
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
             #endregion
-            // Add services to the container.1
+
 
 
             #region Contexts
-            var DBHOST = Environment.GetEnvironmentVariable("DB_HOST");
-            var DBPASS = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");
-            var DBNAME = Environment.GetEnvironmentVariable("DB_NAME");
-            //var connectionString = $"Server={DBHOST};Database={DBNAME};User ID=sa;Password={DBPASS};TrustServerCertificate=True;Integrated Security=True;MultipleActiveResultSets=true";
-            var connectionString = "Data Source = GRMCBX3; Integrated Security = true; Initial Catalog = dbQuiz";
-            //var connectionString = "Server=tcp:sql-server-raghav.database.windows.net,1433;Initial Catalog=raghav;Persist Security Info=False;User ID=raghav;Password=pass@123;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;";
+
+            var connectionString = Environment.GetEnvironmentVariable("SQL_SERVER_CONNECTION_STRING");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new EnvironmentVariableUndefinedException("SQL_SERVER_CONNECTION_STRING");
+            }
             builder.Services.AddDbContext<DBQuizContext>(options =>
             {
                 options.UseSqlServer(connectionString);
             });
+
 
 
             builder.Services.AddControllers().AddJsonOptions(x =>
@@ -132,11 +136,11 @@ namespace QuizApp
             app.UseAuthorization();
 
             app.MapControllers();
-             /*using (var scope = app.Services.CreateScope())
+            using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<DBQuizContext>();
                 dbContext.Database.Migrate();
-            }*/
+            }
 
             app.Run();
         }

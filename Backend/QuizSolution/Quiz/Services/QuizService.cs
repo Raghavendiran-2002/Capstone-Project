@@ -25,7 +25,7 @@ namespace QuizApi.Services
         private readonly IQuizTagRepository<string, QuizTag> _quizTagRepository;
         private readonly IAllowedUserRepository<int, AllowedUser> _allowedUserRepository;
 
-        public QuizService(IQuizRepository<int, Quiz> quizRepository,ITagRepository<int , Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository, IQuizTagRepository<string, QuizTag> quizTagRepository)
+        public QuizService(IQuizRepository<int, Quiz> quizRepository, ITagRepository<int, Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository, IQuizTagRepository<string, QuizTag> quizTagRepository)
         {
             _quizRepository = quizRepository;
             _quizTagRepository = quizTagRepository;
@@ -47,18 +47,18 @@ namespace QuizApi.Services
 
         public async Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO)
         {
-            
+
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
 
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.Code = GenerateUniqueCode();
 
-            
+
 
             quiz.Questions = createQuizDTO.Questions.Select(q => new Question
             {
                 QuestionText = q.QuestionText,
-                Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer=q.CorrectAnswers.Contains(o)}).ToList(),             
+                Options = q.Options.Select(o => new Option { OptionText = o, IsAnswer = q.CorrectAnswers.Contains(o) }).ToList(),
             }).ToList();
 
 
@@ -67,19 +67,19 @@ namespace QuizApi.Services
             if (createQuizDTO.Type == "private")
             {
 
-               
+
                 foreach (var email in createQuizDTO.AllowedUsers)
                 {
-                    
+
                     var existingUser = await _userRepository.GetUserByEmail(email);
-                    
+
                     if (existingUser == null)
                     {
                         inviteUserToApp.Add(email);
-                        var newUser = new User() {Name=email, Email = email, Password = "pass@123"};
+                        var newUser = new User() { Email = email, Password = "pass@123" };
                         await _userRepository.AddUser(newUser);
 
-                        
+
                     }
                     else
                     {
@@ -94,23 +94,29 @@ namespace QuizApi.Services
                 }).ToList();
             }
 
-          
-            quiz = await _quizRepository.AddQuiz(quiz);
-            
-            var quizDTO = _mapper.Map<QuizDTO>(quiz);
-            //SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("new User Register Your password : pass@123 User can attend Quiz : {0}", quiz), body = "Invite User to App", quizId = quiz.QuizId, recipients = inviteUserToApp });
-            //SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("User can attend Quiz : {0}", quiz), body = "Invite User to Quiz", quizId = quiz.QuizId, recipients = inviteUserToQuiz });
 
+            quiz = await _quizRepository.AddQuiz(quiz);
+
+            var quizDTO = _mapper.Map<QuizDTO>(quiz);
+            var baseEmailURI = Environment.GetEnvironmentVariable("BASE_URL_SEND_INVITATION");
+            if (baseEmailURI.Length > 0)
+            {
+                if (inviteUserToApp.Count > 0)
+                    SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("new User Register Your password : pass@123 User can attend Quiz : {0}", quiz), body = "Invite User to App", quizId = quiz.QuizId, recipients = inviteUserToApp });
+                if (inviteUserToQuiz.Count > 0)
+                    SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("User can attend Quiz : {0}", quiz), body = "Invite User to Quiz", quizId = quiz.QuizId, recipients = inviteUserToQuiz });
+            }
             return quizDTO;
         }
         private SendInviteReturnDTO SendInvitationToNewUsers(SendInviteDTO sendInviteDTO)
         {
             var client = new HttpClient();
-            var url = "https://mailfunction.azurewebsites.net/api/";
-            client.BaseAddress = new Uri(url);
+            var baseEmailURI = Environment.GetEnvironmentVariable("BASE_URL_SEND_INVITATION");
+            var inviteURL = Environment.GetEnvironmentVariable("SEND_INVITATION_URL");
             var json = JsonSerializer.Serialize(sendInviteDTO);
+            client.BaseAddress = new Uri(baseEmailURI);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = client.PostAsync("SendEmailFunction?code=LKds33wD5BflPw7XSLaWZG4gfhZv1R2kp2y0-g-KoEDYAzFuWt5Fmg%3D%3D", content).Result;
+            var response = client.PostAsync(inviteURL, content).Result;
             if (response.IsSuccessStatusCode)
             {
                 var responseContext = response.Content.ReadAsStringAsync().Result;
@@ -119,12 +125,12 @@ namespace QuizApi.Services
             }
             else
             {
-                throw new InviteNotSendException("Invite Not Send");
+                throw new InviteNotSendException(response.Content.ReadAsStringAsync().Result);
             }
         }
         private Quiz MapCreateQuizDTOtoQuiz(CreateQuizDTO createQuizDTO)
         {
-            var quiz = new Quiz() {CreatorId = createQuizDTO.UserId, ImageURL = createQuizDTO.ImageURL, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Type = createQuizDTO.Type , DurationPerQuestion = createQuizDTO.DurationPerQuestion };
+            var quiz = new Quiz() { CreatorId = createQuizDTO.UserId, ImageURL = createQuizDTO.ImageURL, Topic = createQuizDTO.Topic, Description = createQuizDTO.Description, Duration = createQuizDTO.Duration, StartTime = createQuizDTO.StartTime, EndTime = createQuizDTO.EndTime, Type = createQuizDTO.Type, DurationPerQuestion = createQuizDTO.DurationPerQuestion };
             return quiz;
         }
 
@@ -150,13 +156,13 @@ namespace QuizApi.Services
 
             if (quiz.Type == "private")
             {
-                var type = (await _allowedUserRepository.ValidateQuizAccess(user.UserId, quiz.QuizId));                
+                var type = (await _allowedUserRepository.ValidateQuizAccess(user.UserId, quiz.QuizId));
                 if (type.Count() == 0)
                 {
                     throw new PrivateQuizException("User not allowed to attend this quiz");
                 }
-            }            
-            return  new ReturnAttendQuizDTO()
+            }
+            return new ReturnAttendQuizDTO()
             {
                 QuizId = quiz.QuizId,
                 Emailid = attendQuizDTO.Email,
@@ -166,14 +172,14 @@ namespace QuizApi.Services
                 QuestionDto = await GetQuizQuestions(quiz.QuizId),
                 DurationPerQuestion = quiz.DurationPerQuestion,
             };
-            
+
         }
 
-       public async Task<ReturnCompleteQuizDTO> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
+        public async Task<ReturnCompleteQuizDTO> CompleteQuiz(CompleteQuizDTO completeQuizDTO)
         {
             // Check if user exists
             var user = await _userRepository.GetUserByEmail(completeQuizDTO.EmailId);
-            if(user == null)
+            if (user == null)
             {
                 throw new UserNotFoundException("User not found");
             }
@@ -189,7 +195,7 @@ namespace QuizApi.Services
             if (timeTakenToComplete.TotalMinutes > quiz.Duration)
             {
                 throw new TimeLimitExceededException("Time limit exceeded");
-            }          
+            }
 
             // Retrieve questions and correct answers from the database
             var questions = await _quizRepository.GetQuestionsByQuizId(completeQuizDTO.QuizId);
@@ -202,7 +208,7 @@ namespace QuizApi.Services
                 var question = questions.FirstOrDefault(q => q.QuestionId == userAnswer.QuestionId);
                 if (question != null)
                 {
-                    var correctOptions = question.Options.Where(co => co.IsAnswer == true).Select(co=>co.OptionText);                    
+                    var correctOptions = question.Options.Where(co => co.IsAnswer == true).Select(co => co.OptionText);
                     if (!correctOptions.Except(userAnswer.SelectedAnswers).Any() && !userAnswer.SelectedAnswers.Except(correctOptions).Any())
                     {
                         correctAnswersCount++;
@@ -212,13 +218,13 @@ namespace QuizApi.Services
             // Calculate percentage
             double scorePercentage = (correctAnswersCount / (double)totalQuestions) * 100;
 
-            
+
             var attempt = new Attempt
             {
                 UserId = user.UserId,
                 QuizId = completeQuizDTO.QuizId,
                 Score = (int)scorePercentage,
-                CompletedAt = DateTime.UtcNow,                                    
+                CompletedAt = DateTime.UtcNow,
             };
             await _attemptRepository.AddAttempt(attempt);
             // Create and save answers
@@ -242,6 +248,7 @@ namespace QuizApi.Services
 
             var status = "fail";
             var certUrl = "";
+            var baseurl = Environment.GetEnvironmentVariable("BASE_URL_GENERATE_CERTIFICATE");
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
@@ -251,8 +258,8 @@ namespace QuizApi.Services
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
                     //var certDetails = GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = "Special"});
-                    
-                    var  spccertificate = new Certificate
+
+                    var spccertificate = new Certificate
                     {
                         AttemptId = attempt.AttemptId,
                         UserId = user.UserId,
@@ -277,17 +284,19 @@ namespace QuizApi.Services
                 };
 
                 await _certificateRepository.AddCertificate(certificate);
-            }            
-            return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic,Score = scorePercentage, CertUrl = certUrl,Status = status};
+            }
+            return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic, Score = scorePercentage, CertUrl = certUrl, Status = status };
         }
 
         private GenerateCertReturnDTO GenerateCertificate(GenerateCertDTO cert)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://certfunctionraghav.azurewebsites.net/api/");
+            var baseurl = Environment.GetEnvironmentVariable("BASE_URL_GENERATE_CERTIFICATE");
+            var url = Environment.GetEnvironmentVariable("GENERATE_CERTIFICATE_URL");
+            client.BaseAddress = new Uri(baseurl);
             var json = JsonSerializer.Serialize(cert);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = client.PostAsync("generatecertificate", content).Result;
+            var response = client.PostAsync(url, content).Result;
             if (response.IsSuccessStatusCode)
             {
                 var responseContext = response.Content.ReadAsStringAsync().Result;
@@ -296,7 +305,7 @@ namespace QuizApi.Services
             }
             else
             {
-                throw new CertificateNotGenerated("Certificate not Generated");
+                throw new CertificateNotGenerated(response.Content.ReadAsStringAsync().Result);
             }
         }
         private string GenerateUniqueCode()
@@ -310,6 +319,6 @@ namespace QuizApi.Services
             return _mapper.Map<IEnumerable<QuestionDTO>>(questions);
         }
 
-       
+
     }
 }

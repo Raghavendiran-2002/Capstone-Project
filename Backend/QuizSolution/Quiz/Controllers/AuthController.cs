@@ -15,7 +15,7 @@ namespace QuizApi.Controllers
     [EnableCors("Cors")]
     public class AuthController : ControllerBase
     {
-    private readonly IUserService _userService;
+        private readonly IUserService _userService;
         private readonly ILogger<AuthController> _logger;
         private readonly IMapper _mapper;
 
@@ -36,9 +36,9 @@ namespace QuizApi.Controllers
                 var result = await _userService.Register(registerUserDTO);
                 return Ok(result);
             }
-            catch(UserAlreadyExistException e)
+            catch (UserAlreadyExistException e)
             {
-                return NotFound(new ErrorModel(505,e.Message));
+                return NotFound(new ErrorModel(505, e.Message));
             }
             catch (Exception ex)
             {
@@ -66,16 +66,15 @@ namespace QuizApi.Controllers
             }
             catch (AuthenticationException e)
             {
-                _logger.LogTrace(e, "Auth Failed");                
+                _logger.LogTrace(e, "Auth Failed");
                 return Unauthorized(new ErrorModel(401, e.Message));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred during login");
-                return BadRequest(new ErrorModel(401,ex.Message));
+                return BadRequest(new ErrorModel(401, ex.Message));
             }
         }
-        [Authorize]
         [HttpPost("change-password")]
         [ProducesResponseType(typeof(ChangePasswordSuccessfullyDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
@@ -84,8 +83,8 @@ namespace QuizApi.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst("id")?.Value);
-                var result = await _userService.ChangePassword(userId, changePasswordDTO);
+
+                var result = await _userService.ChangePassword(changePasswordDTO);
                 return Ok(new ChangePasswordSuccessfullyDTO { status = result });
             }
             catch (InvalidPassword e)

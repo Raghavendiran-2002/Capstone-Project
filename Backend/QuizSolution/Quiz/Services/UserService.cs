@@ -12,7 +12,7 @@ namespace QuizApi.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository<int,User> _userRepository;
+        private readonly IUserRepository<int, User> _userRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly ILogger<UserService> _logger;
@@ -37,7 +37,7 @@ namespace QuizApi.Services
             user.CreatedAt = DateTime.UtcNow;
 
             await _userRepository.AddUser(user);
-           
+
 
             var token = GenerateJwtToken(user);
             var userDTO = _mapper.Map<UserDTO>(user);
@@ -61,14 +61,14 @@ namespace QuizApi.Services
 
 
 
-        public async Task<bool> ChangePassword(int userId, ChangePasswordDTO changePasswordDTO)
+        public async Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
-            var user = await _userRepository.GetUserById(userId);
+            var user = await _userRepository.GetUserByEmail(changePasswordDTO.Email);
             if (user == null || user.Password != changePasswordDTO.OldPassword) // Password check should include hashing
             {
                 throw new InvalidPassword("Invalid password");
             }
-
+            user.Name = changePasswordDTO.Name;
             user.Password = changePasswordDTO.NewPassword; // Hash the new password
             await _userRepository.UpdateUser(user);
             return true;
@@ -77,7 +77,8 @@ namespace QuizApi.Services
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("TokenKey").GetSection("JWT").Value.ToString()));
+            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "JWT";
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(userSecret));
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),

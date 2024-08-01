@@ -11,6 +11,7 @@ COPY ["Quiz/QuizApi.csproj", "Quiz/"]
 RUN dotnet restore "./Quiz/QuizApi.csproj"
 COPY . .
 WORKDIR "/src/Quiz"
+
 RUN dotnet build "./QuizApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
