@@ -68,7 +68,8 @@ namespace QuizApi.Services
             {
                 throw new InvalidPassword("Invalid password");
             }
-            user.Name = changePasswordDTO.Name;
+            if (changePasswordDTO.Name != null)
+                user.Name = changePasswordDTO.Name;
             user.Password = changePasswordDTO.NewPassword; // Hash the new password
             await _userRepository.UpdateUser(user);
             return true;

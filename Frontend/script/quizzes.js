@@ -33,23 +33,24 @@ function checkAuthorization() {
 }
 
 function showUnauthorizedToast() {
-  const toast = new bootstrap.Toast(
-    document.getElementById("unauthorizedToast")
-  );
+  const toastElement = document.getElementById("unauthorizedToast");
+  if (!toastElement) return; // Check if the toast element exists
+
+  const toast = new bootstrap.Toast(toastElement);
   toast.show();
   setTimeout(() => {
-    window.location.href = "index.html"; // Redirect to index.html after showing the toast
+    window.location.href = "../html/login.html"; // Redirect to index.html after showing the toast
   }, 3000); // Redirect after 3 seconds
 }
 
 function fetchQuizzes() {
+  const token = localStorage.getItem("token");
   const quizList = document.getElementById("quiz-list");
 
   fetch(`${IP}/api/Quiz/quizzes`, {
     headers: {
       accept: "text/plain",
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo",
+      Authorization: `Bearer ${token}`,
     },
   })
     .then((response) => response.json())
@@ -88,6 +89,8 @@ function displayQuizzes(quizzes) {
 function createPlaceholderCard() {
   const cardDiv = document.createElement("div");
   cardDiv.className = "card";
+  cardDiv.style.width = "18rem";
+  cardDiv.style.marginBottom = "10px"; // Optional: Add margin between cards
   cardDiv.setAttribute("aria-hidden", "true");
 
   const imgElement = document.createElement("img");
@@ -257,5 +260,5 @@ function createQuizDetails(quiz) {
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "../html/login.html";
 }
