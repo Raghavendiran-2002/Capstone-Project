@@ -35,7 +35,7 @@ function toggleTheme() {
 // Start quiz handler
 function startQuizHandler() {
   window.addEventListener("blur", handleBlur);
-  //const quizCode = document.getElementById("quiz-code").value;
+  const quizCode = localStorage.getItem("quizCode");
   var email = localStorage.getItem("email");
   var quizId = localStorage.getItem("quizId");
 
