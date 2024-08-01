@@ -227,28 +227,15 @@ namespace QuizApi.Services
                 CompletedAt = DateTime.UtcNow,
             };
             await _attemptRepository.AddAttempt(attempt);
-            // Create and save answers
-            /*foreach (var userAnswer in completeQuizDTO.Answers)
-            {
-                foreach (var selectedAnswerId in userAnswer.SelectedAnswers)
-                {
-                    var answer = new Answer
-                    {
-                        AttemptId = attempt.AttemptId,
 
-                        QuestionId = userAnswer.QuestionId,
-                        OptionId = 
-                    };
-
-                    await _answerRepository.AddAnswer(answer);
-                }
-            }
-
-            await _answerRepository.SaveChangesAsync();*/
 
             var status = "fail";
             var certUrl = "";
+            var isNormal = true;
             var baseurl = Environment.GetEnvironmentVariable("BASE_URL_GENERATE_CERTIFICATE");
+            var urlAvailable = false;
+            if (baseurl != null) urlAvailable = true;
+        
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
@@ -257,32 +244,21 @@ namespace QuizApi.Services
                 // Check if the special certificate conditions are met
                 if (timeTakenToComplete.TotalMinutes <= (quiz.Duration / 2))
                 {
-                    //var certDetails = GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = "Special"});
-
-                    var spccertificate = new Certificate
-                    {
-                        AttemptId = attempt.AttemptId,
-                        UserId = user.UserId,
-                        QuizId = completeQuizDTO.QuizId,
-                        Url = "Scecas",
-                        //Url = certDetails.pdfUrl,
-                        CertType = "Special",
-                        // Url = GenerateSpecialCertificateUrl(attempt.AttemptId)
-                    };
-                    certUrl = "klhklj";
-                    //certUrl = certDetails.pdfUrl;
-
-                    await _certificateRepository.AddCertificate(spccertificate);
+                    isNormal = false;
                 }
+                
+                
+                var certDetails = urlAvailable ? GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = isNormal ? "Normal" :"Special"}) : null ;
+
                 var certificate = new Certificate
                 {
                     AttemptId = attempt.AttemptId,
                     UserId = user.UserId,
-                    QuizId = completeQuizDTO.QuizId,
-                    CertType = "Normal",
-                    Url = "Normal"//GenerateCertificateUrl(attempt.AttemptId)
+                    QuizId =  completeQuizDTO.QuizId,                   
+                    Url =urlAvailable ? certDetails.pdfUrl : "", 
+                    CertType = isNormal ? "Normal" : "Special",
                 };
-
+                certUrl = urlAvailable ? certDetails.pdfUrl : "";
                 await _certificateRepository.AddCertificate(certificate);
             }
             return new ReturnCompleteQuizDTO() { QuizTopic = quiz.Topic, Score = scorePercentage, CertUrl = certUrl, Status = status };
