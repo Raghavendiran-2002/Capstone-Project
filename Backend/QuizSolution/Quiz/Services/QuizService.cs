@@ -234,8 +234,8 @@ namespace QuizApi.Services
             var isNormal = true;
             var baseurl = Environment.GetEnvironmentVariable("BASE_URL_GENERATE_CERTIFICATE");
             var urlAvailable = false;
-            if (baseurl != null) urlAvailable = true;
-        
+            if (baseurl.Length > 0) urlAvailable = true;
+
             // Award certificates based on the score and time taken
             if (scorePercentage >= 80)
             {
@@ -246,16 +246,16 @@ namespace QuizApi.Services
                 {
                     isNormal = false;
                 }
-                
-                
-                var certDetails = urlAvailable ? GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = isNormal ? "Normal" :"Special"}) : null ;
+
+
+                var certDetails = urlAvailable ? GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = isNormal ? "Normal" : "Special" }) : null;
 
                 var certificate = new Certificate
                 {
                     AttemptId = attempt.AttemptId,
                     UserId = user.UserId,
-                    QuizId =  completeQuizDTO.QuizId,                   
-                    Url =urlAvailable ? certDetails.pdfUrl : "", 
+                    QuizId = completeQuizDTO.QuizId,
+                    Url = urlAvailable ? certDetails.pdfUrl : "",
                     CertType = isNormal ? "Normal" : "Special",
                 };
                 certUrl = urlAvailable ? certDetails.pdfUrl : "";
