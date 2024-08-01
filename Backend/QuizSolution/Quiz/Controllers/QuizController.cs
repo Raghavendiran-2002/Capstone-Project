@@ -38,15 +38,20 @@ namespace QuizApi.Controllers
                 var quizzes = await _quizService.GetQuizzes(topic, tags);
                 return Ok(quizzes);
             }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving quizzes");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new ErrorModel(404, ex.Message));
             }
         }
         [Authorize]
         [HttpPost("create-quiz")]
         [ProducesResponseType(typeof(QuizDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizDTO createQuizDTO)
         {
@@ -63,7 +68,7 @@ namespace QuizApi.Controllers
             catch (TagNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (Exception ex)
             {
@@ -74,7 +79,7 @@ namespace QuizApi.Controllers
         [Authorize]
         [HttpPost("attend-quiz")]
         [ProducesResponseType(typeof(ReturnAttendQuizDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AttendQuiz([FromBody] AttendQuizDTO attendQuizDTO)
         {
@@ -91,26 +96,38 @@ namespace QuizApi.Controllers
             catch (UserNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+            catch (QuizTimeException ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (QuizNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (InvalidQuizCodeException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return ValidationProblem(ex.Message);
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (PrivateQuizException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return Unauthorized(ex.Message);
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing quiz");
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
         [Authorize]
         [HttpPost("complete-quiz")]
+        [ProducesResponseType(typeof(ReturnAttendQuizDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RegisterUserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CompleteQuiz([FromBody] CompleteQuizDTO completeQuizDTO)
@@ -128,23 +145,23 @@ namespace QuizApi.Controllers
             catch (UserNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (TimeLimitExceededException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(ex.Message);
+                return BadRequest(new ErrorModel(400, ex.Message));
             }
             catch (QuizNotFoundException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return NotFound(ex.Message);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error completing quiz");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
-        }     
+        }
     }
 }

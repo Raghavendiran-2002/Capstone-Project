@@ -1,3 +1,5 @@
+const IP = "https://quizbackend.raghavendiran.cloud";
+
 document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("userId"); // Get userId from localStorage
   const token = localStorage.getItem("token"); // Get token from localStorage
@@ -7,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return; // Exit if userId or token is not available
   }
 
-  const apiUrl = `https://quizbackend.raghavendiran.cloud/api/Profile/view-profile?userId=${userId}`;
+  const apiUrl = `${IP}/api/Profile/view-profile?userId=${userId}`;
 
   fetch(apiUrl, {
     headers: {

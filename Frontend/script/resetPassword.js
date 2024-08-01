@@ -1,4 +1,5 @@
-const IP = "http://127.0.0.1:8000/";
+const IP = "https://quizbackend.raghavendiran.cloud";
+
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 document
   .getElementById("reset-password-form")
@@ -24,16 +25,9 @@ function showToast(toastId) {
   toast.show();
 }
 
-function getQueryParams() {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    email: params.get("email"),
-  };
-}
-
 async function handlePasswordChange(event) {
   event.preventDefault();
-  const { email } = getQueryParams();
+  const email = localStorage.getItem("email");
   const oldPassword = document.getElementById("old-password").value;
   const newPassword = document.getElementById("new-password").value;
 

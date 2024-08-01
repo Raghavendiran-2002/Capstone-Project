@@ -9,14 +9,64 @@
 </head>
 <body>
     <div class="container mt-5">
+        <div id="quiz-instructions" class="mb-4">
+            <h2>Quiz Instructions</h2>
+            <ol>
+                <li><strong>Browser Restrictions:</strong>
+                    <ul>
+                        <li>Do not click outside the browser window during the quiz; doing so will result in automatic submission of your answers.</li>
+                    </ul>
+                </li>
+                <li><strong>Question Format:</strong>
+                    <ul>
+                        <li>All questions are in Multiple Choice Question (MCQ) format.</li>
+                        <li>Each question may have multiple correct answers. Select all that apply.</li>
+                    </ul>
+                </li>
+                <li><strong>Timing:</strong>
+                    <ul>
+                        <li>Ensure you complete the quiz before the timer runs out. Unfinished quizzes will be automatically submitted when the timer expires.</li>
+                    </ul>
+                </li>
+                <li><strong>Answer Submission:</strong>
+                    <ul>
+                        <li>Review your answers before final submission. Once submitted, you cannot change your answers.</li>
+                    </ul>
+                </li>
+                <li><strong>Navigation:</strong>
+                    <ul>
+                        <li>You can only navigate forward through the questions. Use the 'Next' button to proceed to the next question.</li>
+                    </ul>
+                </li>
+                <li><strong>Technical Issues:</strong>
+                    <ul>
+                        <li>In case of any technical difficulties, contact the quiz administrator immediately.</li>
+                    </ul>
+                </li>
+                <li><strong>Environment:</strong>
+                    <ul>
+                        <li>Take the quiz in a quiet, distraction-free environment to ensure your best performance.</li>
+                    </ul>
+                </li>
+                <li><strong>Honesty Policy:</strong>
+                    <ul>
+                        <li>Maintain academic integrity. Any form of cheating will result in disqualification.</li>
+                    </ul>
+                </li>
+                <li><strong>Results:</strong>
+                    <ul>
+                        <li>Results will be generated and provided immediately once you complete the quiz.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
         <div id="quiz-details" class="row justify-content-center align-items-center">
             <div class="col-12 col-md-6 text-center text-md-start mb-4 mb-md-0">
-                <h1 class="mb-3">Welcome to the Quiz!</h1>
-                <p class="mb-5">Pick a subject to get started.</p>
                 <input type="text" id="quiz-code" class="form-control" placeholder="Enter Quiz Code">
                 <button id="start-quiz" class="btn btn-primary mt-3">Start Quiz</button>
             </div>
         </div>
+        
         <div id="quiz-container" class="d-none">
             <div class="row justify-content-center align-items-center">
                 <div class="col-12">
@@ -60,13 +110,12 @@
           <div class="modal-content">
             <div class="modal-header">
               <h1 class="modal-title fs-5" id="quizModalLabel">Quiz Status</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
             </div>
             <div class="modal-body" id="modal-message">
               <!-- Message will be injected here -->
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='../html/login.html'">Close</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='../html/quizzes.html'">Close</button>
               <button type="button" class="btn btn-primary" id="modal-understood"></button>
             </div>
           </div>

@@ -15,7 +15,9 @@
         <div class="row justify-content-center align-items-center">
             <h1 class="mb-3">Welcome to the Quiz!</h1>
             <p class="mb-5">Pick a subject to get started.</p>
+            
             <div class="fun">
+                
                 <div class="list-group quiz-list temp" id="quiz-list">
                     <!-- Quiz items will be appended here by JavaScript -->
                 </div>
@@ -30,7 +32,13 @@
         <img src="../public/icon-moon-dark.svg" alt="moon icon" id="moon-icon" class="toggle-icon">
         <button class="btn btn-secondary ms-2" onclick="window.location.href='viewProfile.html'">Profile</button> <!-- Profile button -->
         <button class="btn btn-secondary ms-2" onclick="window.location.href='createQuiz.html'">Create Quiz</button> 
-        <button class="logout btn btn-secondary ms-2" onclick="logout()">Logout</button> 
+        <button class="logout btn btn-secondary ms-2" onclick="logout()">Logout</button>
+        <select id="quiz-filter" class="form-select ms-2" onchange="filterQuizzes()">
+            <option value="all">All</option>
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+        </select>
+        
     </div>
     
     <div class="toast-container position-fixed bottom-0 end-0 p-3">

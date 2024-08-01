@@ -29,6 +29,7 @@ namespace QuizApi.Controllers
         [HttpGet("view-profile")]
         [ProducesResponseType(typeof(ViewProfileDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ReturnAttendQuizDTO), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserProfile(int userId)
         {
             try
@@ -39,7 +40,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving quizzes");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
         [Authorize]
@@ -56,7 +57,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving quizzes");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
         [Authorize]
@@ -73,7 +74,7 @@ namespace QuizApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving quizzes");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new ErrorModel(500, ex.Message));
             }
         }
     }

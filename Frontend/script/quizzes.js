@@ -4,8 +4,10 @@ document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 document.addEventListener("DOMContentLoaded", init);
 
 function init() {
+  localStorage.removeItem("quizId");
+  localStorage.removeItem("quizCode");
   checkAuthorization();
-  fetchQuizzes();
+  fetchQuizzes("all");
 }
 
 function toggleTheme() {
@@ -43,7 +45,14 @@ function showUnauthorizedToast() {
   }, 3000); // Redirect after 3 seconds
 }
 
-function fetchQuizzes() {
+function filterQuizzes() {
+  const filterValue = document.getElementById("quiz-filter").value;
+
+  // Fetch quizzes again based on the selected filter
+  fetchQuizzes(filterValue);
+}
+
+function fetchQuizzes(filter) {
   const token = localStorage.getItem("token");
   const quizList = document.getElementById("quiz-list");
 
@@ -55,7 +64,10 @@ function fetchQuizzes() {
   })
     .then((response) => response.json())
     .then((data) => {
-      displayQuizzes(data);
+      // Filter quizzes based on the selected filter
+      const filteredQuizzes =
+        filter === "all" ? data : data.filter((quiz) => quiz.type === filter);
+      displayQuizzes(filteredQuizzes);
     })
     .catch((error) => {
       quizList.innerHTML =
@@ -211,6 +223,11 @@ function createAttendButton(quiz) {
   const btnElement = document.createElement("a");
   btnElement.className = "btn btn-primary";
   btnElement.href = `../html/attendQuiz.html?quizId=${quiz.quizId}`;
+  btnElement.onclick = () => {
+    if (quiz.type === "public") localStorage.setItem("quizCode", quiz.code);
+
+    localStorage.setItem("quizId", quiz.quizId);
+  };
   btnElement.textContent = "Attend Quiz";
   return btnElement;
 }
@@ -251,7 +268,7 @@ function createQuizDetails(quiz) {
   attendButton.className = "btn btn-secondary mt-2";
   attendButton.innerText = "Attend Quiz";
   attendButton.onclick = () => {
-    window.location.href = `../html/attendQuiz.html?quizId=${quiz.id}`;
+    window.location.href = `../html/attendQuiz.html?quizId=${quiz.quizId}`;
   };
 
   detailsDiv.appendChild(attendButton);

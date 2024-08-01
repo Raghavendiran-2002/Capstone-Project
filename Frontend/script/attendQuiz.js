@@ -1,6 +1,5 @@
 const IP = "https://quizbackend.raghavendiran.cloud";
-const bearer =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJuYmYiOjE3MjIyMjU3OTQsImV4cCI6MTcyMjgzMDU5NCwiaWF0IjoxNzIyMjI1Nzk0fQ.jR1x1_c95UOPTRVtSytdXNTuHdkeL5SG4jMYt70bxdo";
+document.addEventListener("DOMContentLoaded", init);
 
 // Initialize event listeners
 function initEventListeners() {
@@ -36,20 +35,44 @@ function toggleTheme() {
 // Start quiz handler
 function startQuizHandler() {
   window.addEventListener("blur", handleBlur);
-  const quizCode = document.getElementById("quiz-code").value;
-  const email = "user@example.com"; // Replace with actual email retrieval if needed
+  //const quizCode = document.getElementById("quiz-code").value;
+  var email = localStorage.getItem("email");
+  var quizId = localStorage.getItem("quizId");
+
   if (quizCode && email) {
     const startButton = this;
     setLoadingState(startButton);
-    fetchQuizData(quizCode, email, startButton);
+    fetchQuizData(quizCode, email, quizId, startButton);
   } else {
-    showToast(
-      "Please enter the quiz code and ensure your email is saved in localStorage.",
-      "error"
-    );
+    showToast("Please enter the quiz code.", "error");
   }
 }
+function init() {
+  var token = localStorage.getItem("token");
+  var quizid = localStorage.getItem("quizId");
+  if (quizid === null || quizid === "") {
+    showToast("Please select a quiz to continue.", "error"); // Updated toast message
+    setTimeout(() => {
+      window.location.href = "../html/quizzes.html"; // Redirect to login page after 2 seconds
+    }, 2000);
+  }
+  if (token === null || token === "") {
+    showToast("Unauthorized access. Please log in.", "error"); // Added toast for unauthorized access
+    setTimeout(() => {
+      window.location.href = "../html/login.html"; // Redirect to login page after 2 seconds
+    }, 2000);
+  }
 
+  // {{ edit_1 }}
+  var quizCode = localStorage.getItem("quizCode");
+  var quizCodeInput = document.getElementById("quiz-code");
+  if (quizCode) {
+    quizCodeInput.classList.add("d-none"); // Hide quiz code input if quizCode is available
+  } else {
+    quizCodeInput.classList.remove("d-none"); // Show quiz code input if quizCode is not available
+  }
+  // {{ edit_2 }}
+}
 // Set loading state for the button
 function setLoadingState(button) {
   button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...`;
@@ -57,27 +80,36 @@ function setLoadingState(button) {
 }
 
 // Fetch quiz data from the server
-function fetchQuizData(quizCode, email, startButton) {
+function fetchQuizData(quizCode, email, quizId, startButton) {
+  var token = localStorage.getItem("token");
   fetch(`${IP}/api/Quiz/attend-quiz`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${bearer}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ code: quizCode, quizId: 2, email: email }),
+    body: JSON.stringify({
+      code: quizCode,
+      quizId: parseInt(quizId),
+      email: email,
+    }),
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.quizId) {
         startQuiz(data);
       } else {
-        showToast("Invalid quiz code. Please try again.", "error");
+        showToast(data.message, "error");
+        if (data.message === "User not allowed to attend this quiz") {
+          setTimeout(() => {
+            window.location.href = "../html/quizzes.html";
+          }, 1000);
+        }
         resetButton(startButton);
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      showToast("An error occurred while starting the quiz.", "error");
+      showToast(error, "error");
       resetButton(startButton);
     });
 }
@@ -95,10 +127,9 @@ let warningCount = 0;
 let questionInterval; // Declare questionInterval globally
 
 function startQuiz(data) {
-  console.log(data);
+  quizData = data;
   var startTime = new Date().toISOString();
   setupBackButtonWarning(startTime);
-  quizData = data;
   document.getElementById("quiz-details").classList.add("d-none");
   document.getElementById("quiz-container").classList.remove("d-none");
   startTimer(startTime);
@@ -288,16 +319,16 @@ function submitQuiz(quizId, startTime) {
     questionId: question.questionId,
     selectedAnswers: question.selectedAnswer,
   }));
-
+  var token = localStorage.getItem("token");
   fetch(`${IP}/api/Quiz/complete-quiz`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${bearer}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       quizId: quizId,
-      emailId: "raghav@gmail.com",
+      emailId: email,
       startTime: startTime,
       endTime: endTime,
       answers: answers,
