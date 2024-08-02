@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/raghavendiran/Desktop/Capstone-Project/Azure/CertificateGenerate/CertificateGenerate.csproj": {}
+  },
+  "projects": {
+    "/Users/raghavendiran/Desktop/Capstone-Project/Azure/CertificateGenerate/CertificateGenerate.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/raghavendiran/Desktop/Capstone-Project/Azure/CertificateGenerate/CertificateGenerate.csproj",
+        "projectName": "CertificateGenerate",
+        "projectPath": "/Users/raghavendiran/Desktop/Capstone-Project/Azure/CertificateGenerate/CertificateGenerate.csproj",
+        "packagesPath": "/Users/raghavendiran/.nuget/packages/",
+        "outputPath": "/Users/raghavendiran/Desktop/Capstone-Project/Azure/CertificateGenerate/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/raghavendiran/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Azure.Storage.Blobs": {
+              "target": "Package",
+              "version": "[12.21.0, )"
+            },
+            "Microsoft.NET.Sdk.Functions": {
+              "target": "Package",
+              "version": "[4.4.0, )"
+            },
+            "PdfSharp": {
+              "target": "Package",
+              "version": "[6.1.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/Cellar/dotnet/6.0.104_1/libexec/sdk/6.0.104/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
