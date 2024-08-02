@@ -78,7 +78,7 @@ namespace QuizApi.Services
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "JWT";
+            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "This is the dummy key which has to be a bit long for the 512. which should be even more longer for the passing";
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(userSecret));
             var tokenDescriptor = new SecurityTokenDescriptor
             {

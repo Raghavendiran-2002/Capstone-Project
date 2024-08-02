@@ -47,7 +47,7 @@ namespace QuizApp
                     }
                 });
             });
-            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "JWT";
+            var userSecret = Environment.GetEnvironmentVariable("JWT_USER_SECRET") ?? "This is the dummy key which has to be a bit long for the 512. which should be even more longer for the passing";
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(options =>
@@ -71,7 +71,8 @@ namespace QuizApp
 
             #region Contexts
 
-            var connectionString = Environment.GetEnvironmentVariable("SQL_SERVER_CONNECTION_STRING");
+           // var connectionString = Environment.GetEnvironmentVariable("SQL_SERVER_CONNECTION_STRING");
+            var connectionString = "Server=tcp:sql-serverv-raghav1.database.windows.net,1433;Initial Catalog=quiz;Persist Security Info=False;User ID=raghav;Password=pass@123;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;";
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new EnvironmentVariableUndefinedException("SQL_SERVER_CONNECTION_STRING");

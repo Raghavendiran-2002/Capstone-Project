@@ -42,7 +42,7 @@ namespace QuizApi.Repositories
         public  async Task<User> GetUserByIdForProfile(int userId)
         {
             //return await _context.Users.Include(u => u.Attempts).Include(u => u.Certificates).FirstAsync(i => i.UserId == userId);
-            return await _context.Users.Include(u => u.Attempts).ThenInclude(u=>u.Certificate).FirstOrDefaultAsync(i=>i.UserId==userId);
+            return await _context.Users.Include(u => u.Attempts).ThenInclude(u=>u.Certificate).Include(u=>u.Quizzes).ThenInclude(u=>u.Questions).ThenInclude(u=>u.Options).FirstOrDefaultAsync(i=>i.UserId==userId);
         }
     }
 }
