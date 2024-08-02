@@ -1,7 +1,19 @@
-const IP = "https://quizbackend.raghavendiran.cloud";
+//const IP = "https://quizbackend.raghavendiran.cloud";
+const IP = "http://127.0.0.1:8000";
 
 document.addEventListener("DOMContentLoaded", function () {
-  localStorage.clear(); // Clear all local storage items
+  if (localStorage.getItem(isDark)) {
+    document.body.classList.add("dark-mode");
+    sunIcon.src = "../public/icon-sun-light.svg";
+    moonIcon.src = "../public/icon-moon-light.svg";
+  } else {
+    document.body.classList.remove("dark-mode");
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
+  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("email");
 });
 
 document.getElementById("theme-toggle").addEventListener("change", function () {
@@ -9,10 +21,12 @@ document.getElementById("theme-toggle").addEventListener("change", function () {
   const moonIcon = document.getElementById("moon-icon");
 
   if (this.checked) {
+    localStorage.setItem("isDark", true);
     document.body.classList.add("dark-mode");
     sunIcon.src = "../public/icon-sun-light.svg";
     moonIcon.src = "../public/icon-moon-light.svg";
   } else {
+    localStorage.setItem("isDark", false);
     document.body.classList.remove("dark-mode");
     sunIcon.src = "../public/icon-sun-dark.svg";
     moonIcon.src = "../public/icon-moon-dark.svg";

@@ -6,6 +6,23 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
 }
+
+body.dark-mode .navbar-bg {
+    background-color: #2D3949 !important;
+  }
+
+.navbar-bg {
+    background-color: #edf1f9 !important;
+  }
+ 
+ body.dark-mode  .navbar-bg .navbar-brand {
+    color: white;
+  }
+
+  .navbar-bg .navbar-brand {
+    color: black;
+  }
+
 .toggle-switch {
     position: absolute;
     top: 1rem;
@@ -75,6 +92,21 @@ body.dark-mode {
     background-color: #212529;
     color: #f8f9fa;
     background-image: url('/public/pattern-background-desktop-dark.svg');
+}
+
+body.dark-mode .form-control {
+    background-color: #343a40;
+    color: #f8f9fa;
+    border: 1px solid #495057;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #adb5bd;
+}
+
+body.dark-mode .btn-primary {
+    background-color: #6610f2;
+    border: none;
 }
 
 body.dark-mode .list-group-item {
