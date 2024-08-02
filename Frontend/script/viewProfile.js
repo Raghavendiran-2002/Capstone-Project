@@ -1,4 +1,5 @@
-const IP = "http://127.0.0.1:8000"; // Or your actual IP
+const IP = "https://quizbackend.raghavendiran.cloud";
+//const IP = "http://127.0.0.1:8000";
 document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("userId"); // Get userId from localStorage
   const token = localStorage.getItem("token"); // Get token from localStorage
@@ -99,6 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch((error) => {
       console.error("Error fetching profile:", error);
+    });
+
+  document
+    .getElementById("reset-password")
+    .addEventListener("click", function () {
+      window.location.href = "../html/resetPassword.html";
     });
 
   document

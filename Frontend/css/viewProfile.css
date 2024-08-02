@@ -7,6 +7,43 @@ body {
     background-repeat: no-repeat;
 }
 
+.navbar{
+    background-color: #edf1f9 !important;
+}
+
+.dark-mode .card-body *{
+    color:black !important;
+}
+
+.dark-mode .navbar{
+    background-color: #2D3949 !important;
+}
+
+.dark-mode .navbar-brand{
+    color: white !important;
+}
+
+.mode-selector{
+    display:flex;
+    margin-top:8px;
+}
+
+.dark-mode .navbar-nav *{
+    color: white !important;
+}
+
+.dark-mode h1{
+    color:white;
+}
+.dark-mode p{
+    color:white;
+}
+
+.dark-mode .list-group-item:hover {
+    background-color: #495057;
+}
+
+
 h1 strong {
     color: #495057;
 }

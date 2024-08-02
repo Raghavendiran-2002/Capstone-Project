@@ -102,9 +102,9 @@ namespace QuizApi.Services
             if (baseEmailURI.Length > 0)
             {
                 if (inviteUserToApp.Count > 0)
-                    SendInvitationToNewUsers(new SendInviteDTO() { subject = "Invitation to Participate in a Private Quiz", body = String.Format("Dear {0},\nWe are excited to invite you to participate in an exclusive private quiz! This quiz is specially designed to test your knowledge and provide a fun and engaging experience.\nQuiz Details:*\n Quiz ID: {1}*\n Quiz Code: {2}\nDefault Password: pass@123\nInstructions to Join:1.\n Visit our quiz platform at quizbackend.raghavendiran.cloud.\n2. Enter the Quiz ID and Quiz Code provided above.\n3. Follow the on-screen instructions to begin the quiz.\nWe hope you enjoy the quiz and look forward to seeing your results.\n If you have any questions or need further assistance, please do not hesitate to contact us.\nBest regards,\nRaghavendiran", "user", quiz.QuizId, quiz.Code), quizId = quiz.QuizId, recipients = inviteUserToApp });
+                    SendInvitationToNewUsers(new SendInviteDTO() { quizId = quiz.QuizId, recipients = inviteUserToApp, quizCode = quiz.Code, usertype = "new" });
                 if (inviteUserToQuiz.Count > 0)
-                    SendInvitationToNewUsers(new SendInviteDTO() { subject = String.Format("User can attend Quiz : {0}", quiz.QuizId), body = "Invite User to Quiz", quizId = quiz.QuizId, recipients = inviteUserToQuiz });
+                    SendInvitationToNewUsers(new SendInviteDTO() { quizId = quiz.QuizId, recipients = inviteUserToQuiz, quizCode = quiz.Code, usertype = "old" });
             }
             return quizDTO;
         }

@@ -1,5 +1,5 @@
-//const IP = "https://quizbackend.raghavendiran.cloud";
-const IP = "http://127.0.0.1:8000";
+const IP = "https://quizbackend.raghavendiran.cloud";
+//const IP = "http://127.0.0.1:8000";
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 document
   .getElementById("reset-password-form")

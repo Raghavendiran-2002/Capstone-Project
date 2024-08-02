@@ -1,5 +1,5 @@
-//const IP = "https://quizbackend.raghavendiran.cloud";
-const IP = "http://127.0.0.1:8000";
+const IP = "https://quizbackend.raghavendiran.cloud";
+//const IP = "http://127.0.0.1:8000";
 document.addEventListener("DOMContentLoaded", init);
 
 // Initialize event listeners

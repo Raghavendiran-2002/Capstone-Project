@@ -6,6 +6,25 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
 }
+.mode-selector{
+    display:flex;
+    margin-top:8px;
+}
+.navbar{
+    background-color: #edf1f9 !important;
+}
+
+.dark-mode .navbar{
+    background-color: #2D3949 !important;
+}
+
+.dark-mode .navbar-brand{
+    color: white !important;
+}
+
+.dark-mode .navbar-nav *{
+    color: white !important;
+}
 
 h1 strong {
     color: #495057;
@@ -43,7 +62,7 @@ h1 strong {
 }
 
 .toggle-label {
-    width: 40px;
+    width: 50px;
     height: 20px;
     background-color: #6c757d;
     border-radius: 20px;
@@ -85,4 +104,14 @@ body.dark-mode .list-group-item {
 
 body.dark-mode .list-group-item:hover {
     background-color: #495057;
+}
+
+body.dark-mode .form-control{
+    background-color: #2D3949 !important;;
+    color:white !important;
+}
+
+body.dark-mode .form-select{
+    background-color: #2D3949 !important;;
+    color:white !important;
 }

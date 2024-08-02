@@ -7,6 +7,23 @@ body {
     background-repeat: no-repeat;
 }
 
+.hero{
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.filter{
+    display:flex;
+    width:40%;
+    margin-bottom: 60px;
+}
+
+.mode-selector{
+    display:flex;
+    margin-top:8px;
+}
+
 h1, p {
     color: #495057;
 }
@@ -72,6 +89,28 @@ body.dark-mode {
     color: #f8f9fa;
 }
 
+.navbar{
+    background-color: #edf1f9 !important;
+}
+
+.dark-mode .navbar{
+    background-color: #2D3949 !important;
+}
+
+.dark-mode .navbar-brand{
+    color: white !important;
+}
+
+.dark-mode .navbar-nav *{
+    color: white !important;
+}
+
+.dark-mode h1{
+    color:white;
+}
+.dark-mode p{
+    color:white;
+}
 
 .dark-mode .list-group-item:hover {
     background-color: #495057;
