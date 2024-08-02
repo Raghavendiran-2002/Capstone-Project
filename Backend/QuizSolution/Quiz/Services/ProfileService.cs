@@ -30,11 +30,16 @@ namespace QuizApi.Services
         public async Task<ViewUpdateQuizDTO> UpdateQuiz( ViewUpdateQuizDTO quizDTO)
         {
             var quiz = _mapper.Map<Quiz>(quizDTO);                        
-            _quizRepository.UpdateQuiz(quiz);
+            _quizRepository.UpdateQuiz(quizDTO);
             return quizDTO;
         }
-      
 
+        public async Task<bool> UpdateQuizSlot(UpdateQuizSlotDTO quizSlot)
+        {
+            _quizRepository.UpdateQuizSlotRepo(quizSlot);
+            return true;
+        }
+       
         public async Task<ViewProfileDTO> ViewProfile(int userId)
         {
             var user = await _userRepository.GetUserByIdForProfile(userId);

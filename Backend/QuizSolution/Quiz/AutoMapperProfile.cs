@@ -51,6 +51,8 @@ namespace QuizApi
             .ForMember(dest => dest.Certificates, opt => opt.Ignore())
             .ForMember(dest => dest.Creator, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+       
         }
     }
 }

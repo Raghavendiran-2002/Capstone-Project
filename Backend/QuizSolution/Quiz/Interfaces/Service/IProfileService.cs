@@ -14,5 +14,7 @@ namespace QuizApi.Interfaces.Service
 
         Task<QuizDTO> DeleteQuiz(QuizDTO quizDTO);
 
+        Task<bool> UpdateQuizSlot(UpdateQuizSlotDTO quizSlot);
+
     }
 }

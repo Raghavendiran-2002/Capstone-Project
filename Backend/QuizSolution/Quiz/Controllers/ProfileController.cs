@@ -61,6 +61,23 @@ namespace QuizApi.Controllers
             }
         }
         [Authorize]
+        [HttpPost("update-quiz-slot")]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateQuizSlot(UpdateQuizSlotDTO quiz)
+        {
+            try
+            {
+                //await _profileService.UpdateQuizSlot(quiz);
+                return Ok(new ErrorModel(200,"Updated Successfully"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving quizzes");
+                return StatusCode(500, new ErrorModel(500, ex.Message));
+            }
+        }
+        [Authorize]
         [HttpGet("quiz-creator")]
         [ProducesResponseType(typeof(ViewUpdateQuizDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
