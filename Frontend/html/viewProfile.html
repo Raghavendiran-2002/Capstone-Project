@@ -33,7 +33,6 @@
                     <img src="../public/icon-moon-dark.svg" alt="moon icon" id="moon-icon" class="toggle-icon">
                 </div>
               <button class="btn btn-outline-success" type="button" onclick="logout()">Logout</button>
-              <button id="reset-password" class="btn btn-primary ms-2">Reset Password</button>
             </form>
           </div>
         </div>
@@ -56,7 +55,10 @@
             <div class="col-md-12">
                 <h1 class="text-center"><strong>Profile</strong></h1>
                 <div class="mt-4">
-                    <p><strong>Email:</strong> <span id="email"></span></p>
+                    <p class="d-flex justify-content-between">
+                        <span><strong>Email:</strong> <span id="email"></span></span>
+                        <button id="reset-password" class="btn btn-primary">Reset Password</button>
+                    </p>
                     <p><strong>Name:</strong> <span id="name"></span></p>
                     <h2 class="mt-4">Quiz Attempts</h2>
                     <div class="d-flex justify-content-end mb-3">

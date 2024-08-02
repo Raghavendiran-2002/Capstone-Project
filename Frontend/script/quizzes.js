@@ -153,8 +153,23 @@ function createCardBody(quiz) {
   cardBodyDiv.className = "card-body";
 
   const cardTitleElement = document.createElement("h5");
-  cardTitleElement.className = "card-title placeholder-glow";
+  cardTitleElement.className = "card-title";
   cardTitleElement.textContent = `${quiz.topic}`;
+
+  const labelSpan = document.createElement("span");
+  const currentTime = new Date();
+  const startTime = new Date(quiz.startTime);
+  const endTime = new Date(quiz.endTime);
+
+  if (startTime <= currentTime && endTime >= currentTime) {
+    labelSpan.textContent = " (Live)";
+    labelSpan.style.color = "green";
+  } else if (startTime > currentTime) {
+    labelSpan.textContent = " (Upcoming)";
+    labelSpan.style.color = "red";
+  }
+
+  cardTitleElement.appendChild(labelSpan);
 
   const cardTextElement = document.createElement("p");
   cardTextElement.className = "card-text";
@@ -177,13 +192,11 @@ function createDetailsList(quiz) {
     `End Time: ${new Date(quiz.endTime).toLocaleString()}`
   );
   const typeItem = createListItem(`Type: ${quiz.type}`);
-  const codeItem = createListItem(`Code: ${quiz.code}`);
 
   detailsList.appendChild(durationItem);
   detailsList.appendChild(startTimeItem);
   detailsList.appendChild(endTimeItem);
   detailsList.appendChild(typeItem);
-  detailsList.appendChild(codeItem);
 
   return detailsList;
 }
@@ -237,7 +250,7 @@ function createQuizDetails(quiz) {
 
   detailsDiv.innerHTML =
     quiz.type !== "private"
-      ? `${detailsHTML}<p><strong>Code:</strong> ${quiz.code}</p>`
+      ? `${detailsHTML}`
       : `${detailsHTML}<div class="input-group mb-3"><input type="text" class="form-control" placeholder="Enter Code" aria-label="Enter Code"><button class="btn btn-primary" type="button">Attend Test</button></div>`;
 
   const attendButton = document.createElement("button");
