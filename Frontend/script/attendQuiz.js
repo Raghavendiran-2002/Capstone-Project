@@ -128,6 +128,7 @@ let warningCount = 0;
 let questionInterval; // Declare questionInterval globally
 
 function startQuiz(data) {
+  document.getElementById("quiz-instructions").classList.add("d-none");
   quizData = data;
   var startTime = new Date().toISOString();
   setupBackButtonWarning(startTime);
@@ -173,7 +174,7 @@ function startTimer(startTime) {
 
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
-    timerElement.textContent = `${minutes}:${
+    timerElement.textContent = `Time Left : ${minutes}:${
       seconds < 10 ? "0" : ""
     }${seconds}`;
 
@@ -205,11 +206,11 @@ function showQuestion(index, startTime, durationPerQuestion) {
       ${question.options
         .map(
           (option, i) => `
-        <label class="list-group-item">
-          <input type="checkbox" name="question-${
-            question.questionId
-          }" value="${option.optionText}">
-          ${String.fromCharCode(65 + i)}. ${option.optionText}
+        <label class="list-group-item d-flex align-items-center">
+          <input type="radio" name="question-${question.questionId}" value="${
+            option.optionText
+          }" class="me-2">
+          <span>${String.fromCharCode(65 + i)}. ${option.optionText}</span>
         </label>
       `
         )
@@ -264,6 +265,8 @@ function handleBlur() {
     );
     window.location.href = "../html/quizzes.html";
   }
+
+  window.history.pushState(null, null, window.location.href); // Disable back button
 }
 
 // Reset timer for the current question
@@ -337,9 +340,7 @@ function submitQuiz(quizId, startTime) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("data ... ");
       if (data.status) {
-        console.log("status ..");
         const certUrl = data.certUrl; // Assuming certUrl is part of the response
         showToastCompleteQuiz(
           `Quiz submitted successfully! ${data.status} + score: ${data.score}`,
@@ -358,7 +359,6 @@ function showToastCompleteQuiz(message, type, certUrl) {
   const modalMessage = document.getElementById("modal-message");
   modalMessage.textContent = message; // Set the message in the modal
   const quizModal = new bootstrap.Modal(document.getElementById("quizModal"));
-  console.log(type);
 
   const understoodButton = document.getElementById("modal-understood");
   if (type === "pass") {

@@ -8,7 +8,7 @@ function init() {
   localStorage.removeItem("quizId");
   localStorage.removeItem("quizCode");
   checkAuthorization();
-  fetchQuizzes("all");
+  fetchQuizzes("all", "all");
 }
 
 function toggleTheme() {
@@ -48,12 +48,13 @@ function showUnauthorizedToast() {
 
 function filterQuizzes() {
   const filterValue = document.getElementById("quiz-filter").value;
+  const timeFilterValue = document.getElementById("quiz-filter-time").value;
 
   // Fetch quizzes again based on the selected filter
-  fetchQuizzes(filterValue);
+  fetchQuizzes(filterValue, timeFilterValue);
 }
 
-function fetchQuizzes(filter) {
+function fetchQuizzes(typeFilter, timeFilter) {
   const token = localStorage.getItem("token");
   const quizList = document.getElementById("quiz-list");
 
@@ -65,9 +66,25 @@ function fetchQuizzes(filter) {
   })
     .then((response) => response.json())
     .then((data) => {
-      // Filter quizzes based on the selected filter
-      const filteredQuizzes =
-        filter === "all" ? data : data.filter((quiz) => quiz.type === filter);
+      // Filter quizzes based on the selected filters
+      const filteredQuizzes = data.filter((quiz) => {
+        const currentTime = new Date();
+        const startTime = new Date(quiz.startTime);
+        const endTime = new Date(quiz.endTime);
+
+        const timeFilterCondition =
+          timeFilter === "live"
+            ? startTime <= currentTime && endTime >= currentTime
+            : timeFilter === "upcoming"
+            ? startTime > currentTime
+            : true;
+
+        const typeFilterCondition =
+          typeFilter === "all" ? true : quiz.type === typeFilter;
+
+        return timeFilterCondition && typeFilterCondition;
+      });
+
       displayQuizzes(filteredQuizzes);
     })
     .catch((error) => {
@@ -81,13 +98,6 @@ function displayQuizzes(quizzes) {
   const quizList = document.getElementById("quiz-list");
   quizList.innerHTML = ""; // Clear existing content
 
-  // Add placeholder cards
-  for (let i = 0; i < 3; i++) {
-    // Adjust the number of placeholders as needed
-    const placeholderCard = createPlaceholderCard();
-    quizList.appendChild(placeholderCard);
-  }
-
   // Remove placeholders after data is fetched
   setTimeout(() => {
     quizList.innerHTML = ""; // Clear placeholders
@@ -97,48 +107,6 @@ function displayQuizzes(quizzes) {
       quizList.appendChild(cardDiv);
     });
   }, 2000); // Simulate loading time (adjust as needed)
-}
-
-function createPlaceholderCard() {
-  const cardDiv = document.createElement("div");
-  cardDiv.className = "card";
-  cardDiv.style.width = "18rem";
-  cardDiv.style.marginBottom = "10px"; // Optional: Add margin between cards
-  cardDiv.setAttribute("aria-hidden", "true");
-
-  const imgElement = document.createElement("img");
-  imgElement.className = "card-img-top placeholder";
-  imgElement.src = "https://via.placeholder.com/150"; // Placeholder image
-  imgElement.alt = "Loading...";
-
-  const cardBodyDiv = document.createElement("div");
-  cardBodyDiv.className = "card-body";
-
-  const cardTitleElement = document.createElement("h5");
-  cardTitleElement.className = "card-title placeholder-glow";
-  cardTitleElement.innerHTML = '<span class="placeholder col-6"></span>';
-
-  const cardTextElement = document.createElement("p");
-  cardTextElement.className = "card-text placeholder-glow";
-  cardTextElement.innerHTML = `
-    <span class="placeholder col-7"></span>
-    <span class="placeholder col-4"></span>
-    <span class="placeholder col-4"></span>
-    <span class="placeholder col-6"></span>
-    <span class="placeholder col-8"></span>
-  `;
-
-  const btnElement = document.createElement("a");
-  btnElement.className = "btn btn-primary disabled placeholder col-6";
-  btnElement.setAttribute("aria-disabled", "true");
-
-  cardBodyDiv.appendChild(cardTitleElement);
-  cardBodyDiv.appendChild(cardTextElement);
-  cardBodyDiv.appendChild(btnElement);
-  cardDiv.appendChild(imgElement);
-  cardDiv.appendChild(cardBodyDiv);
-
-  return cardDiv;
 }
 
 function isQuizExpired(quiz) {
@@ -168,8 +136,15 @@ function createQuizCard(quiz) {
 function createImageElement(imageURL) {
   const imgElement = document.createElement("img");
   imgElement.className = "card-img-top";
+
+  // Set a placeholder image if the original fails to load
   imgElement.src = imageURL || "https://via.placeholder.com/150";
   imgElement.alt = "LOGO";
+
+  imgElement.onerror = () => {
+    imgElement.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+  };
+
   return imgElement;
 }
 
