@@ -71,8 +71,7 @@ namespace QuizApp
 
             #region Contexts
 
-           // var connectionString = Environment.GetEnvironmentVariable("SQL_SERVER_CONNECTION_STRING");
-            var connectionString = "Server=tcp:sql-serverv-raghav1.database.windows.net,1433;Initial Catalog=quiz;Persist Security Info=False;User ID=raghav;Password=pass@123;MultipleActiveResultSets=False;Encrypt=true;TrustServerCertificate=False;Connection Timeout=30;";
+            var connectionString = Environment.GetEnvironmentVariable("SQL_SERVER_CONNECTION_STRING");
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new EnvironmentVariableUndefinedException("SQL_SERVER_CONNECTION_STRING");
@@ -137,11 +136,11 @@ namespace QuizApp
             app.UseAuthorization();
 
             app.MapControllers();
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<DBQuizContext>();
-                dbContext.Database.Migrate();
-            }
+            // using (var scope = app.Services.CreateScope())
+            // {
+            //     var dbContext = scope.ServiceProvider.GetRequiredService<DBQuizContext>();
+            //     dbContext.Database.Migrate();
+            // }
 
             app.Run();
         }
