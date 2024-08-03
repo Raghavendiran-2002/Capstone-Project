@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    environment {
+        PROJECT_DIR = 'Backend/QuizSolution' 
+        IMAGE_NAME = 'quizsolution:latest' 
+        PROJECT_DIR_FRONTEND = 'Frontend'
+        CONTAINER_NAME_FRONTEND = 'frontend-quiz'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/Raghavendiran-2002/Capstone-Project.git' // Replace with your repository URL
+            }
+        }
+        stage('Remove Previous Build'){
+            steps {
+                dir("${env.PROJECT_DIR}") {
+                    script {
+                        sh "docker-compose down || true"
+                        sh "docker stop ${CONTAINER_NAME_FRONTEND} || true"
+                        sh "docker rm ${CONTAINER_NAME_FRONTEND} || true"
+                        sh "echo 'y' | docker system prune -a"
+                    }
+                }
+            }
+        }
+
+        stage('Run Docker Container Backend') {
+            steps {
+                dir("${env.PROJECT_DIR}") {
+                    script {
+                        sh 'docker-compose up -d --build'
+                    }
+                }
+            }
+        }
+
+        stage('Run Docker Container Frontend') {
+            steps {
+                dir("${env.PROJECT_DIR_FRONTEND}") {
+                    script {
+                        sh "docker build -t ${env.CONTAINER_NAME_FRONTEND} ."
+                        sh "docker run -d -p 8010:80 --name ${env.CONTAINER_NAME_FRONTEND} ${env.CONTAINER_NAME_FRONTEND}"
+                    }
+                }
+            }
+        }
+    }
+}
