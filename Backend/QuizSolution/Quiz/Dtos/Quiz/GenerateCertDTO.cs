@@ -3,10 +3,9 @@
     public class GenerateCertDTO
     {
         public string name { get; set; }
-        public string issueDate { get;set;}
-        public string expDate { get; set;}
-        //public  Double score { get; set;}
-        public string certType { get; set;}
+        public string quizTopic { get; set; }
+        public string score { get; set; }
+        public string certType { get; set; }
 
     }
 }

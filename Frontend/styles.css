@@ -57,6 +57,9 @@ body.dark-mode {
     background-image: url('/public/pattern-background-desktop-dark.svg');
 }
 
+h1.dark-mode, p.dark-mode {
+    color: #f8f9fa;
+}
 
 .toggle-icon {
     width: 24px;
@@ -64,3 +67,7 @@ body.dark-mode {
     margin: 0 10px;
 }
 
+.toast-container {
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+}

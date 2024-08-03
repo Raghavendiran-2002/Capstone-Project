@@ -1,151 +1,140 @@
+// Constants
 const IP = "https://quizbackend.raghavendiran.cloud";
-//const IP = "http://127.0.0.1:8000";
-document.addEventListener("DOMContentLoaded", () => {
-  const userId = localStorage.getItem("userId"); // Get userId from localStorage
-  const token = localStorage.getItem("token"); // Get token from localStorage
 
-  if (!userId || !token) {
-    showToast("User ID or token not found. Please log in again.", "error"); // Show toast instead of alert
-    setTimeout(() => {
-      window.location.href = "../html/index.html"; // Redirect to index.html after 1 second
-    }, 1000);
-    return; // Exit if userId or token is not available
+// Utility functions
+const showToast = (message, type) => {
+  const toastElement =
+    type === "error"
+      ? document.getElementById("error-toast")
+      : document.getElementById("success-toast");
+  const toastBody = toastElement.querySelector(".toast-body");
+  toastBody.textContent = message;
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+};
+
+const redirectToLogin = (message) => {
+  showToast(message, "error");
+  setTimeout(() => {
+    window.location.href = "../index.html";
+  }, 1000);
+};
+
+const fetchProfile = async (userId, token) => {
+  try {
+    const apiUrl = `${IP}/api/Profile/view-profile?userId=${userId}`;
+    const response = await fetch(apiUrl, {
+      headers: {
+        accept: "text/plain",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    throw error;
   }
+};
 
-  const apiUrl = `${IP}/api/Profile/view-profile?userId=${userId}`;
+// DOM Manipulation functions
+const displayProfileInfo = (data) => {
+  document.getElementById("email").textContent = data.email;
+  document.getElementById("name").textContent = data.name;
+};
 
-  fetch(apiUrl, {
-    headers: {
-      accept: "text/plain",
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.errorcode) {
-        showToast(`Error: ${data.message}`, "error"); // Show toast instead of alert
-      } else {
-        document.getElementById("email").textContent = data.email;
-        document.getElementById("name").textContent = data.name;
-
-        // Display attempts
-        const attemptsList = document.getElementById("attempts-list");
-        data.attempts.forEach((attempt) => {
-          const listItem = document.createElement("div");
-          listItem.className = "card mb-3";
-          listItem.innerHTML = `
-            <div class="card-body text-center">
-              <h5 class="card-title font-weight-bold">Attempt ID: ${
-                attempt.attemptId
-              } | Quiz ID: ${attempt.quizId}</h5>
-              <p class="card-text"><strong>Score:</strong> <span class="${
-                attempt.score >= 80 ? "text-success" : "text-danger"
-              }">${
-            attempt.score
-          }</span> - <strong>Status:</strong> <span class="${
-            attempt.score >= 80 ? "text-success" : "text-danger"
-          }">${attempt.score >= 80 ? "Pass" : "Fail"}</span></p>
-              <p class="card-text"><strong>Completed At:</strong> <span class="text-muted">${new Date(
-                attempt.completedAt
-              ).toLocaleString()}</span></p>
-              ${
-                attempt.certificate
-                  ? `<a href="${attempt.certificate.url}" class="btn btn-primary" download>Download Certificate</a>`
-                  : ""
-              }
-            </div>
-          `;
-          attemptsList.appendChild(listItem);
-        });
-
-        // Display quizzes
-        const quizzesList = document.getElementById("quizzes-list");
-        data.quizzes.forEach((quiz) => {
-          const quizItem = document.createElement("div");
-          quizItem.className = "card mb-3 shadow-sm"; // Added shadow for depth
-          quizItem.innerHTML = `
-            <div class="card-body">
-              <h5 class="card-title font-weight-bold">${
-                quiz.topic
-              }</h5> <!-- Bold title -->
-              <p class="card-text"><strong>Description:</strong> ${
-                quiz.description
-              }</p>
-              <p class="card-text"><strong>Duration:</strong> ${
-                quiz.duration
-              } hours</p>
-              <p class="card-text"><strong>Start Time:</strong> ${new Date(
-                quiz.startTime
-              ).toLocaleString()}</p>
-              <p class="card-text"><strong>End Time:</strong> ${new Date(
-                quiz.endTime
-              ).toLocaleString()}</p>
-              <h6 class="card-subtitle mb-2 text-muted">Questions:</h6>
-              <ul class="list-unstyled"> <!-- Changed to list-unstyled for cleaner look -->
-                ${quiz.questions
-                  .map(
-                    (question) => `
-                  <li class="mb-3"> <!-- Added margin for spacing -->
-                    <p><strong>Q${question.questionId}:</strong> ${
-                      question.questionText
-                    }</p>
-                    <ul>
-                      ${question.options
-                        .map(
-                          (option) => `
-                        <li>
-                          ${option.optionText} ${
-                            option.isAnswer
-                              ? "<span class='text-success'>(Correct Answer)</span>"
-                              : ""
-                          }
-                        </li>
-                      `
-                        )
-                        .join("")}
-                    </ul>
-                  </li>
-                `
-                  )
-                  .join("")}
-              </ul>
-            </div>
-          `;
-          quizzesList.appendChild(quizItem);
-        });
+const createAttemptItem = (attempt) => {
+  const listItem = document.createElement("div");
+  listItem.className = "card mb-3";
+  listItem.innerHTML = `
+    <div class="card-body text-center">
+      <h5 class="card-title font-weight-bold">Attempt ID: ${
+        attempt.attemptId
+      } | Quiz ID: ${attempt.quizId}</h5>
+      <p class="card-text"><strong>Score:</strong> <span class="${
+        attempt.score >= 80 ? "text-success" : "text-danger"
+      }">${attempt.score}</span> - <strong>Status:</strong> <span class="${
+    attempt.score >= 80 ? "text-success" : "text-danger"
+  }">${attempt.score >= 80 ? "Pass" : "Fail"}</span></p>
+      <p class="card-text"><strong>Completed At:</strong> <span class="text-muted">${new Date(
+        attempt.completedAt
+      ).toLocaleString()}</span></p>
+      ${
+        attempt.certificate
+          ? `<a href="${attempt.certificate.url}" class="btn btn-primary" download>Download Certificate</a>`
+          : ""
       }
-    })
-    .catch((error) => {
-      console.error("Error fetching profile:", error);
-    });
+    </div>
+  `;
+  return listItem;
+};
 
-  // Add this block to apply the 'least-recent' filter on load
-  const filterSelect = document.getElementById("filter-select");
-  filterSelect.value = "least-recent"; // Set the filter to 'least-recent'
-  filterSelect.dispatchEvent(new Event("change")); // Trigger change event to apply filter
+const displayAttempts = (attempts) => {
+  const attemptsList = document.getElementById("attempts-list");
+  attempts.forEach((attempt) => {
+    attemptsList.appendChild(createAttemptItem(attempt));
+  });
+};
 
-  document
-    .getElementById("reset-password")
-    .addEventListener("click", function () {
-      window.location.href = "../html/resetPassword.html";
-    });
+const createQuizItem = (quiz) => {
+  const quizItem = document.createElement("div");
+  quizItem.className = "card mb-3 shadow-sm";
+  quizItem.innerHTML = `
+    <div class="card-body">
+      <h5 class="card-title font-weight-bold">${quiz.topic}</h5>
+      <p class="card-text"><strong>Description:</strong> ${quiz.description}</p>
+      <p class="card-text"><strong>Duration:</strong> ${quiz.duration} hours</p>
+      <p class="card-text"><strong>Start Time:</strong> ${new Date(
+        quiz.startTime
+      ).toLocaleString()}</p>
+      <p class="card-text"><strong>End Time:</strong> ${new Date(
+        quiz.endTime
+      ).toLocaleString()}</p>
+      <h6 class="card-subtitle mb-2 text-muted">Questions:</h6>
+      <ul class="list-unstyled">
+        ${quiz.questions
+          .map(
+            (question) => `
+          <li class="mb-3">
+            <p><strong>Q${question.questionId}:</strong> ${
+              question.questionText
+            }</p>
+            <ul>
+              ${question.options
+                .map(
+                  (option) => `
+                <li>
+                  ${option.optionText} ${
+                    option.isAnswer
+                      ? "<span class='text-success'>(Correct Answer)</span>"
+                      : ""
+                  }
+                </li>
+              `
+                )
+                .join("")}
+            </ul>
+          </li>
+        `
+          )
+          .join("")}
+      </ul>
+    </div>
+  `;
+  return quizItem;
+};
 
-  document
-    .getElementById("theme-toggle")
-    .addEventListener("change", function () {
-      const sunIcon = document.getElementById("sun-icon");
-      const moonIcon = document.getElementById("moon-icon");
+const displayQuizzes = (quizzes) => {
+  const quizzesList = document.getElementById("quizzes-list");
+  quizzes.forEach((quiz) => {
+    quizzesList.appendChild(createQuizItem(quiz));
+  });
+};
 
-      if (this.checked) {
-        document.body.classList.add("dark-mode");
-        sunIcon.src = "../public/icon-sun-light.svg";
-        moonIcon.src = "../public/icon-moon-light.svg";
-      } else {
-        document.body.classList.remove("dark-mode");
-        sunIcon.src = "../public/icon-sun-dark.svg";
-        moonIcon.src = "../public/icon-moon-dark.svg";
-      }
-    });
+// Event listeners
+const addEventListeners = () => {
+  document.getElementById("reset-password").addEventListener("click", () => {
+    window.location.href = "../html/resetPassword.html";
+  });
 
   document
     .getElementById("filter-select")
@@ -172,19 +161,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document
     .querySelector("button[onclick='logout()']")
-    .addEventListener("click", function () {
-      localStorage.clear(); // Clear local storage
-      window.location.href = "../html/index.html"; // Redirect to index.html
+    .addEventListener("click", () => {
+      localStorage.clear();
+      window.location.href = "../html/index.html";
     });
+};
 
-  function showToast(message, type) {
-    const toastElement =
-      type === "error"
-        ? document.getElementById("error-toast")
-        : document.getElementById("success-toast");
-    const toastBody = toastElement.querySelector(".toast-body");
-    toastBody.textContent = message;
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
+// Main function
+const main = async () => {
+  const isDark = localStorage.getItem("isDark") === "true";
+  const themeToggle = document.getElementById("theme-toggle");
+  if (isDark) {
+    applyDarkMode(true);
+    themeToggle.checked = true;
   }
-});
+
+  document
+    .getElementById("theme-toggle")
+    .addEventListener("change", toggleTheme);
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  if (!userId || !token) {
+    redirectToLogin("User ID or token not found. Please log in again.");
+    return;
+  }
+
+  try {
+    const data = await fetchProfile(userId, token);
+    if (data.errorcode) {
+      showToast(`Error: ${data.message}`, "error");
+    } else {
+      displayProfileInfo(data);
+      displayAttempts(data.attempts);
+      displayQuizzes(data.quizzes);
+    }
+  } catch (error) {
+    showToast("An error occurred while fetching profile.", "error");
+  }
+
+  document.getElementById("filter-select").value = "least-recent";
+  document.getElementById("filter-select").dispatchEvent(new Event("change"));
+
+  addEventListeners();
+};
+
+document.addEventListener("DOMContentLoaded", main);
+
+function toggleTheme() {
+  const isDark = this.checked;
+  applyDarkMode(isDark);
+  localStorage.setItem("isDark", isDark);
+}
+
+function applyDarkMode(isDark) {
+  const sunIcon = document.getElementById("sun-icon");
+  const moonIcon = document.getElementById("moon-icon");
+  const body = document.body;
+  const darkModeElements = document.querySelectorAll("h1, p, .toast-container");
+
+  if (isDark) {
+    body.classList.add("dark-mode");
+    sunIcon.src = "../public/icon-sun-light.svg";
+    moonIcon.src = "../public/icon-moon-light.svg";
+    darkModeElements.forEach((element) => element.classList.add("dark-mode"));
+  } else {
+    body.classList.remove("dark-mode");
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
+    darkModeElements.forEach((element) =>
+      element.classList.remove("dark-mode")
+    );
+  }
+}
