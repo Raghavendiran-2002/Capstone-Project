@@ -67,8 +67,8 @@ def SendEmailFunction(req: func.HttpRequest) -> func.HttpResponse:
         subject = "Invitation to Participate in a Private Quiz"
         
         # Sender email and password
-        sender = "raghavendiran222222@gmail.com"
-        password = "password"
+        sender = "raghavendiran@gmail.com"
+        password = "cdfayxc dfdasehzw pnmbvfdgsl jusdgsdtd"
 
         # Send email
         send_email(subject, body, sender, recipients, password)
