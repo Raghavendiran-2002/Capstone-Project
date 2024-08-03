@@ -1,6 +1,15 @@
 const IP = "https://quizbackend.raghavendiran.cloud";
 //const IP = "http://127.0.0.1:8000";
 document.addEventListener("DOMContentLoaded", () => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  if (!userId || !token) {
+    showToast(`User ID or token not found. Please log in again.`, "danger");
+    setTimeout(() => {
+      window.location.href = "/index.html";
+    }, 1000);
+  }
   document
     .getElementById("theme-toggle")
     .addEventListener("change", function () {
@@ -21,8 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionsContainer = document.getElementById("questionsContainer");
   const addQuestionButton = document.getElementById("addQuestion");
   let questionIndex = 1;
-
-  const userId = localStorage.getItem("userId"); // Fetch userId from local storage
 
   typeSelect.addEventListener("change", function () {
     if (this.value === "private") {

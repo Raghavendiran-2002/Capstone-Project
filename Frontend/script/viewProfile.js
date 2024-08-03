@@ -163,7 +163,7 @@ const addEventListeners = () => {
     .querySelector("button[onclick='logout()']")
     .addEventListener("click", () => {
       localStorage.clear();
-      window.location.href = "../html/index.html";
+      window.location.href = "./index.html";
     });
 };
 
@@ -184,7 +184,9 @@ const main = async () => {
 
   if (!userId || !token) {
     redirectToLogin("User ID or token not found. Please log in again.");
-    return;
+    setTimeout(() => {
+      window.location.href = "/index.html";
+    }, 1000);
   }
 
   try {

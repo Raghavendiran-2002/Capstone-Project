@@ -83,7 +83,7 @@ document
         if (data.token) {
           // Store token, userId, and email in local storage
           localStorage.setItem("token", data.token);
-          localStorage.setItem("userId", data.userId); // Assuming userId is part of the response
+          localStorage.setItem("userId", data.user.userId); // Assuming userId is part of the response
           localStorage.setItem("email", email); // Store the email from the form
 
           showToast("success-toast");

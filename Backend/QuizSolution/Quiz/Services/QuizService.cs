@@ -248,7 +248,7 @@ namespace QuizApi.Services
                 }
 
 
-                var certDetails = urlAvailable ? GenerateCertificate(new GenerateCertDTO() { name = user.Name, expDate = "2025", issueDate = "2024", certType = isNormal ? "Normal" : "Special" }) : null;
+                var certDetails = urlAvailable ? GenerateCertificate(new GenerateCertDTO() { name = user.Name, score = scorePercentage.ToString(), quizTopic = quiz.Topic, certType = isNormal ? "Normal" : "Special" }) : null;
 
                 var certificate = new Certificate
                 {
