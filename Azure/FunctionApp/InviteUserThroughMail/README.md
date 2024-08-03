@@ -1,0 +1,1 @@
+az functionapp create --resource-group rg_raghav --consumption-plan-location westus2 --runtime python --runtime-version 3.10 --functions-version 4 --name InviteUserFunctionViaEmail --storage-account raghavstoragequiz --os-type Linux
