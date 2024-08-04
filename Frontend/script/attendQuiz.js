@@ -250,7 +250,15 @@ function createButton(text, onClick) {
   return button;
 }
 function handleBlur() {
-  if ((e.which || e.keyCode) == 116) e.preventDefault();
+  document.addEventListener("keydown", function (e) {
+    if (
+      e.key === "F5" ||
+      (e.ctrlKey && e.key === "r") ||
+      (e.metaKey && e.key === "r")
+    ) {
+      e.preventDefault();
+    }
+  });
   warningCount++;
   showToast(
     `Warning ${warningCount}: You have clicked out of the browser. Please stay focused on the quiz.`,
