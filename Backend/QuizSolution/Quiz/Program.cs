@@ -67,6 +67,14 @@ namespace QuizApp
             });
             #endregion
 
+            #region Redis
+            var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+            });
+
+            #endregion
 
 
             #region Contexts
