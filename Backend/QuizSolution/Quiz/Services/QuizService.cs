@@ -6,6 +6,7 @@ using QuizApi.Interfaces.Repository;
 using QuizApi.Interfaces.Service;
 using QuizApi.Repositories;
 using QuizApp.Models;
+using Newtonsoft.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
@@ -44,20 +45,21 @@ namespace QuizApi.Services
 
         public async Task<IEnumerable<QuizDTO>> GetQuizzes(string topic = null, List<string> tags = null)
         {
-            var cacheKey = $"quizzes_{topic}";
+            var cacheKey = "quizzes";
             var cachedQuizzes = await _cache.GetStringAsync(cacheKey);
-
             if (!string.IsNullOrEmpty(cachedQuizzes))
             {
-                return JsonSerializer.Deserialize<IEnumerable<QuizDTO>>(cachedQuizzes);
+                return JsonConvert.DeserializeObject<IEnumerable<QuizDTO>>(cachedQuizzes);
             }
             var quizzes = await _quizRepository.GetQuizzesByTopicAndTags(topic, tags);
             var quizDTOs = _mapper.Map<IEnumerable<QuizDTO>>(quizzes);
-            var cacheOptions = new DistributedCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromMinutes(5))
-            .SetAbsoluteExpiration(TimeSpan.FromHours(1));
 
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(quizDTOs), cacheOptions);
+            var serializedQuizzes = JsonConvert.SerializeObject(quizDTOs);
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) // Cache expiration time
+            };
+            await _cache.SetStringAsync(cacheKey, serializedQuizzes, cacheOptions);
 
             return quizDTOs;
         }
@@ -113,8 +115,9 @@ namespace QuizApi.Services
 
 
             quiz = await _quizRepository.AddQuiz(quiz);
-
+            await _cache.RemoveAsync("quizzes");
             var quizDTO = _mapper.Map<QuizDTO>(quiz);
+
             var baseEmailURI = Environment.GetEnvironmentVariable("BASE_URL_SEND_INVITATION");
             if (baseEmailURI.Length > 0)
             {
@@ -130,14 +133,14 @@ namespace QuizApi.Services
             var client = new HttpClient();
             var baseEmailURI = Environment.GetEnvironmentVariable("BASE_URL_SEND_INVITATION");
             var inviteURL = Environment.GetEnvironmentVariable("SEND_INVITATION_URL");
-            var json = JsonSerializer.Serialize(sendInviteDTO);
+            var json = System.Text.Json.JsonSerializer.Serialize(sendInviteDTO);
             client.BaseAddress = new Uri(baseEmailURI);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = client.PostAsync(inviteURL, content).Result;
             if (response.IsSuccessStatusCode)
             {
                 var responseContext = response.Content.ReadAsStringAsync().Result;
-                var certResponse = JsonSerializer.Deserialize<SendInviteReturnDTO>(responseContext);
+                var certResponse = System.Text.Json.JsonSerializer.Deserialize<SendInviteReturnDTO>(responseContext);
                 return certResponse;
             }
             else
@@ -287,13 +290,13 @@ namespace QuizApi.Services
             var baseurl = Environment.GetEnvironmentVariable("BASE_URL_GENERATE_CERTIFICATE");
             var url = Environment.GetEnvironmentVariable("GENERATE_CERTIFICATE_URL");
             client.BaseAddress = new Uri(baseurl);
-            var json = JsonSerializer.Serialize(cert);
+            var json = System.Text.Json.JsonSerializer.Serialize(cert);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = client.PostAsync(url, content).Result;
             if (response.IsSuccessStatusCode)
             {
                 var responseContext = response.Content.ReadAsStringAsync().Result;
-                var certResponse = JsonSerializer.Deserialize<GenerateCertReturnDTO>(responseContext);
+                var certResponse = System.Text.Json.JsonSerializer.Deserialize<GenerateCertReturnDTO>(responseContext);
                 return certResponse;
             }
             else
