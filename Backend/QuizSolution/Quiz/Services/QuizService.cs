@@ -49,8 +49,11 @@ namespace QuizApi.Services
             var cachedQuizzes = await _cache.GetStringAsync(cacheKey);
             if (!string.IsNullOrEmpty(cachedQuizzes))
             {
+                _logger.LogInformation($"Cache hit for quizzes");
                 return JsonConvert.DeserializeObject<IEnumerable<QuizDTO>>(cachedQuizzes);
             }
+            _logger.LogInformation($"Cache miss for quizzes");
+
             var quizzes = await _quizRepository.GetQuizzesByTopicAndTags(topic, tags);
             var quizDTOs = _mapper.Map<IEnumerable<QuizDTO>>(quizzes);
 
