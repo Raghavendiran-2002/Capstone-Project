@@ -84,7 +84,11 @@ body.dark-mode {
     background-image: url('/public/pattern-background-desktop-dark.svg');
 }
 
-.dark-mode .list-group-item {
+body.dark-mode .list-group-item {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+.dark-mode .card-body {
     background-color: #343a40;
     color: #f8f9fa;
 }
@@ -111,6 +115,7 @@ body.dark-mode {
 .dark-mode p{
     color:white;
 }
+
 
 .dark-mode .list-group-item:hover {
     background-color: #495057;

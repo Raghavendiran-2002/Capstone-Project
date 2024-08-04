@@ -78,48 +78,83 @@ const displayAttempts = (attempts) => {
 const createQuizItem = (quiz) => {
   const quizItem = document.createElement("div");
   quizItem.className = "card mb-3 shadow-sm";
+
   quizItem.innerHTML = `
     <div class="card-body">
       <h5 class="card-title font-weight-bold">${quiz.topic}</h5>
-      <p class="card-text"><strong>Description:</strong> ${quiz.description}</p>
-      <p class="card-text"><strong>Duration:</strong> ${quiz.duration} hours</p>
-      <p class="card-text"><strong>Start Time:</strong> ${new Date(
+      <p class="card-text"><strong>Duration:</strong> <span class="quiz-duration">${
+        quiz.duration
+      }</span> hours</p>
+      <p class="card-text"><strong>Start Time:</strong> <span class="quiz-start-time">${new Date(
         quiz.startTime
-      ).toLocaleString()}</p>
-      <p class="card-text"><strong>End Time:</strong> ${new Date(
+      ).toLocaleString()}</span></p>
+      <p class="card-text"><strong>End Time:</strong> <span class="quiz-end-time">${new Date(
         quiz.endTime
-      ).toLocaleString()}</p>
-      <h6 class="card-subtitle mb-2 text-muted">Questions:</h6>
-      <ul class="list-unstyled">
-        ${quiz.questions
-          .map(
-            (question) => `
-          <li class="mb-3">
-            <p><strong>Q${question.questionId}:</strong> ${
-              question.questionText
-            }</p>
-            <ul>
-              ${question.options
-                .map(
-                  (option) => `
-                <li>
-                  ${option.optionText} ${
-                    option.isAnswer
-                      ? "<span class='text-success'>(Correct Answer)</span>"
-                      : ""
-                  }
-                </li>
-              `
-                )
-                .join("")}
-            </ul>
-          </li>
-        `
-          )
-          .join("")}
-      </ul>
+      ).toLocaleString()}</span></p>
+      <button class="btn btn-primary edit-btn">Edit</button>
+      <button class="btn btn-success update-btn" style="display: none;">Update</button>
     </div>
   `;
+
+  const editBtn = quizItem.querySelector(".edit-btn");
+  const updateBtn = quizItem.querySelector(".update-btn");
+  const durationElem = quizItem.querySelector(".quiz-duration");
+  const startTimeElem = quizItem.querySelector(".quiz-start-time");
+  const endTimeElem = quizItem.querySelector(".quiz-end-time");
+
+  editBtn.addEventListener("click", () => {
+    durationElem.innerHTML = `<input type="number" class="form-control" value="${quiz.duration}">`;
+    startTimeElem.innerHTML = `<input type="datetime-local" class="form-control" value="${new Date(
+      quiz.startTime
+    )
+      .toISOString()
+      .slice(0, 16)}">`;
+    endTimeElem.innerHTML = `<input type="datetime-local" class="form-control" value="${new Date(
+      quiz.endTime
+    )
+      .toISOString()
+      .slice(0, 16)}">`;
+    editBtn.style.display = "none";
+    updateBtn.style.display = "inline-block";
+  });
+
+  updateBtn.addEventListener("click", async () => {
+    const updatedQuiz = {
+      ...quiz,
+      duration: quizItem.querySelector(".quiz-duration input").value,
+      startTime: new Date(
+        quizItem.querySelector(".quiz-start-time input").value
+      ).toISOString(),
+      endTime: new Date(
+        quizItem.querySelector(".quiz-end-time input").value
+      ).toISOString(),
+    };
+    showToast("Quiz updated successfully", "success");
+    durationElem.innerHTML = `${updatedQuiz.duration} hours`;
+    startTimeElem.innerHTML = new Date(updatedQuiz.startTime).toLocaleString();
+    endTimeElem.innerHTML = new Date(updatedQuiz.endTime).toLocaleString();
+    editBtn.style.display = "inline-block";
+    updateBtn.style.display = "none";
+    // try {
+    //   const response = await fetch("/update-quiz-endpoint", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(updatedQuiz),
+    //   });
+
+    //   if (response.ok) {
+
+    //   } else {
+    //     showToast("Failed to update quiz", "error");
+    //     alert("Failed to update quiz");
+    //   }
+    // } catch (error) {
+    //   alert("Error updating quiz");
+    // }
+  });
+
   return quizItem;
 };
 

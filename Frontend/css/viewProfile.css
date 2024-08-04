@@ -11,8 +11,9 @@ body {
     background-color: #edf1f9 !important;
 }
 
-.dark-mode .card-body *{
-    color:black !important;
+.dark-mode .card-body {
+    background-color: #495057;
+    color:white !important;
 }
 
 .dark-mode .navbar{
@@ -32,7 +33,7 @@ body {
     color: white !important;
 }
 
-.dark-mode h1{
+.dark-mode h1 strong{
     color:white;
 }
 .dark-mode p{
@@ -125,7 +126,11 @@ body.dark-mode .list-group-item {
     background-color: #343a40;
     color: #f8f9fa;
 }
+body.dark-mode .list-group{
+    background-color: #343a40;
+    color: #f8f9fa;
 
+}
 body.dark-mode .list-group-item:hover {
     background-color: #495057;
 }
