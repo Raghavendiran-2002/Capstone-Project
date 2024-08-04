@@ -10,15 +10,16 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/index.html";
     }, 1000);
   }
+  const isDark = localStorage.getItem("isDark") === "true";
+  const themeToggle = document.getElementById("theme-toggle");
+  if (isDark) {
+    applyDarkMode(true);
+    themeToggle.checked = true;
+  }
+
   document
     .getElementById("theme-toggle")
-    .addEventListener("change", function () {
-      if (this.checked) {
-        document.body.classList.add("dark-mode");
-      } else {
-        document.body.classList.remove("dark-mode");
-      }
-    });
+    .addEventListener("change", toggleTheme);
 
   const quizForm = document.getElementById("quizForm");
   const typeSelect = document.getElementById("type");
@@ -228,5 +229,34 @@ document.addEventListener("DOMContentLoaded", () => {
     toastElement.classList.add(`bg-${type}`);
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
+  }
+
+  function toggleTheme() {
+    const isDark = this.checked;
+    applyDarkMode(isDark);
+    localStorage.setItem("isDark", isDark);
+  }
+
+  function applyDarkMode(isDark) {
+    const sunIcon = document.getElementById("sun-icon");
+    const moonIcon = document.getElementById("moon-icon");
+    const body = document.body;
+    const darkModeElements = document.querySelectorAll(
+      "h1, p, .toast-container"
+    );
+
+    if (isDark) {
+      body.classList.add("dark-mode");
+      sunIcon.src = "../public/icon-sun-light.svg";
+      moonIcon.src = "../public/icon-moon-light.svg";
+      darkModeElements.forEach((element) => element.classList.add("dark-mode"));
+    } else {
+      body.classList.remove("dark-mode");
+      sunIcon.src = "../public/icon-sun-dark.svg";
+      moonIcon.src = "../public/icon-moon-dark.svg";
+      darkModeElements.forEach((element) =>
+        element.classList.remove("dark-mode")
+      );
+    }
   }
 });

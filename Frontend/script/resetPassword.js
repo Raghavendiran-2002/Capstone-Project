@@ -73,18 +73,13 @@ function toggleTheme() {
   }
 }
 
-function showToast(toastId) {
-  const toast = new bootstrap.Toast(document.getElementById(toastId));
-  toast.show();
-}
-
 async function handlePasswordChange(event) {
   event.preventDefault();
   const email = localStorage.getItem("email");
   const oldPassword = document.getElementById("old-password").value;
   const newPassword = document.getElementById("new-password").value;
 
-  const response = await fetch(`${IP}api/Auth/change-password`, {
+  const response = await fetch(`${IP}/api/Auth/change-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

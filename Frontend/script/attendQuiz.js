@@ -35,10 +35,12 @@ function toggleTheme() {
 
 // Start quiz handler
 function startQuizHandler() {
-  const quizCode = localStorage.getItem("quizCode");
+  var quizCode = localStorage.getItem("quizCode");
   var email = localStorage.getItem("email");
   var quizId = localStorage.getItem("quizId");
-
+  if (!quizCode) {
+    quizCode = document.getElementById("quiz-code").value;
+  }
   if (quizCode && email) {
     const startButton = this;
     setLoadingState(startButton);
@@ -62,8 +64,17 @@ function init() {
       window.location.href = "../html/login.html"; // Redirect to login page after 2 seconds
     }, 2000);
   }
+  const isDark = localStorage.getItem("isDark") === "true";
+  const themeToggle = document.getElementById("theme-toggle");
+  if (isDark) {
+    applyDarkMode(true);
+    themeToggle.checked = true;
+  }
 
-  // {{ edit_1 }}
+  document
+    .getElementById("theme-toggle")
+    .addEventListener("change", toggleTheme);
+
   var quizCode = localStorage.getItem("quizCode");
   var quizCodeInput = document.getElementById("quiz-code");
   if (quizCode) {
@@ -71,7 +82,6 @@ function init() {
   } else {
     quizCodeInput.classList.remove("d-none"); // Show quiz code input if quizCode is not available
   }
-  // {{ edit_2 }}
 }
 // Set loading state for the button
 function setLoadingState(button) {
@@ -79,6 +89,32 @@ function setLoadingState(button) {
   button.disabled = true; // Disable the button
 }
 
+function toggleTheme() {
+  const isDark = this.checked;
+  applyDarkMode(isDark);
+  localStorage.setItem("isDark", isDark);
+}
+
+function applyDarkMode(isDark) {
+  const sunIcon = document.getElementById("sun-icon");
+  const moonIcon = document.getElementById("moon-icon");
+  const body = document.body;
+  const darkModeElements = document.querySelectorAll("h1, p, .toast-container");
+
+  if (isDark) {
+    body.classList.add("dark-mode");
+    sunIcon.src = "../public/icon-sun-light.svg";
+    moonIcon.src = "../public/icon-moon-light.svg";
+    darkModeElements.forEach((element) => element.classList.add("dark-mode"));
+  } else {
+    body.classList.remove("dark-mode");
+    sunIcon.src = "../public/icon-sun-dark.svg";
+    moonIcon.src = "../public/icon-moon-dark.svg";
+    darkModeElements.forEach((element) =>
+      element.classList.remove("dark-mode")
+    );
+  }
+}
 // Fetch quiz data from the server
 function fetchQuizData(quizCode, email, quizId, startButton) {
   var token = localStorage.getItem("token");
@@ -343,6 +379,8 @@ function submitQuiz(quizId, startTime) {
           data.status,
           certUrl
         );
+      } else {
+        showToast("An error occurred while submitting the quiz.", "error");
       }
     })
     .catch((error) => {
@@ -353,6 +391,9 @@ function submitQuiz(quizId, startTime) {
 function showToastCompleteQuiz(message, type, certUrl) {
   const modalMessage = document.getElementById("modal-message");
   modalMessage.textContent = message; // Set the message in the modal
+  modalMessage.style = ` background-color: ${
+    type === "pass" ? "green" : "red"
+  }; z-index: 1000;`;
   const quizModal = new bootstrap.Modal(document.getElementById("quizModal"));
 
   const understoodButton = document.getElementById("modal-understood");
