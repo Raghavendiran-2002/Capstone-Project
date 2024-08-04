@@ -8,6 +8,7 @@ using QuizApi.Repositories;
 using QuizApp.Models;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace QuizApi.Services
 {
@@ -24,9 +25,11 @@ namespace QuizApi.Services
         private readonly IQuestionRepository<int, Question> _questionRepository;
         private readonly IQuizTagRepository<string, QuizTag> _quizTagRepository;
         private readonly IAllowedUserRepository<int, AllowedUser> _allowedUserRepository;
+        private readonly IDistributedCache _cache;
 
-        public QuizService(IQuizRepository<int, Quiz> quizRepository, ITagRepository<int, Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository, IQuizTagRepository<string, QuizTag> quizTagRepository)
+        public QuizService(IQuizRepository<int, Quiz> quizRepository, IDistributedCache cache, ITagRepository<int, Tag> tagRepository, IUserRepository<int, User> userRepository, IMapper mapper, ILogger<QuizService> logger, IAllowedUserRepository<int, AllowedUser> allowedUserRepository, IQuestionRepository<int, Question> questionRepository, IAttemptRepository<int, Attempt> attemptRepository, ICertificateRepository<int, Certificate> certificateRepository, IQuizTagRepository<string, QuizTag> quizTagRepository)
         {
+            _cache = cache;
             _quizRepository = quizRepository;
             _quizTagRepository = quizTagRepository;
             _certificateRepository = certificateRepository;
@@ -41,8 +44,22 @@ namespace QuizApi.Services
 
         public async Task<IEnumerable<QuizDTO>> GetQuizzes(string topic = null, List<string> tags = null)
         {
+            var cacheKey = $"quizzes_{topic}";
+            var cachedQuizzes = await _cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedQuizzes))
+            {
+                return JsonSerializer.Deserialize<IEnumerable<QuizDTO>>(cachedQuizzes);
+            }
             var quizzes = await _quizRepository.GetQuizzesByTopicAndTags(topic, tags);
-            return _mapper.Map<IEnumerable<QuizDTO>>(quizzes);
+            var quizDTOs = _mapper.Map<IEnumerable<QuizDTO>>(quizzes);
+            var cacheOptions = new DistributedCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+            .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(quizDTOs), cacheOptions);
+
+            return quizDTOs;
         }
 
         public async Task<QuizDTO> CreateQuiz(CreateQuizDTO createQuizDTO)
