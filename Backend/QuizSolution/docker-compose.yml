@@ -13,6 +13,9 @@ services:
       - logs:/quizlogs
     depends_on:
       - redis
+    networks:
+      my_network:
+        ipv4_address: 172.28.0.2
 
   redis:
     image: redis:latest
@@ -21,7 +24,17 @@ services:
       - 6379:6379
     volumes:
       - redis_data:/data
+    networks:
+      my_network:
+        ipv4_address: 172.28.0.3
 
 volumes:
   logs:
   redis_data:
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
