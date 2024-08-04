@@ -35,7 +35,6 @@ function toggleTheme() {
 
 // Start quiz handler
 function startQuizHandler() {
-  window.addEventListener("blur", handleBlur);
   const quizCode = localStorage.getItem("quizCode");
   var email = localStorage.getItem("email");
   var quizId = localStorage.getItem("quizId");
@@ -128,6 +127,7 @@ let warningCount = 0;
 let questionInterval; // Declare questionInterval globally
 
 function startQuiz(data) {
+  window.addEventListener("blur", handleBlur);
   document.getElementById("quiz-instructions").classList.add("d-none");
   quizData = data;
   var startTime = new Date().toISOString();
@@ -154,7 +154,7 @@ function setupBackButtonWarning(startTime) {
         "You have pressed the back button too many times. The quiz will now be terminated.",
         "error"
       );
-      submitQuiz(quizData.quizId, startTime); // Terminate the quiz
+      window.location.href = "../html/quizzes.html";
     }
   };
 }
@@ -250,22 +250,19 @@ function createButton(text, onClick) {
   return button;
 }
 function handleBlur() {
+  if ((e.which || e.keyCode) == 116) e.preventDefault();
   warningCount++;
   showToast(
     `Warning ${warningCount}: You have clicked out of the browser. Please stay focused on the quiz.`,
     "error"
   );
-  if (warningCount == 3) {
-    showToast("Last warning", "error");
-  }
-  if (warningCount >= 4) {
+  if (warningCount == 4) {
     showToast(
       "You have violated the rules. The quiz will be terminated.",
       "error"
     );
     window.location.href = "../html/quizzes.html";
   }
-
   window.history.pushState(null, null, window.location.href); // Disable back button
 }
 
@@ -350,7 +347,6 @@ function submitQuiz(quizId, startTime) {
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
       showToast("An error occurred while submitting the quiz.", "error");
     });
 }

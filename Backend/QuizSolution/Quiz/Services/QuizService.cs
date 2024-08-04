@@ -71,6 +71,7 @@ namespace QuizApi.Services
         {
 
             var quiz = MapCreateQuizDTOtoQuiz(createQuizDTO);
+            await _cache.RemoveAsync($"user_profile_{createQuizDTO.UserId}");
 
             quiz.CreatedAt = DateTime.UtcNow;
             quiz.Code = GenerateUniqueCode();
@@ -161,6 +162,7 @@ namespace QuizApi.Services
         {
             var quiz = await _quizRepository.GetQuizById(attendQuizDTO.QuizId);
             var user = await _userRepository.GetUserByEmail(attendQuizDTO.Email);
+            await _cache.RemoveAsync($"user_profile_{user.UserId}");
             if (user == null)
                 throw new UserNotFoundException("User not Found");
             if (quiz == null)

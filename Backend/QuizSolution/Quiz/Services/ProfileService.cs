@@ -44,7 +44,6 @@ namespace QuizApi.Services
             _quizRepository.UpdateQuizSlotRepo(quizSlot);
             return true;
         }
-
         public async Task<ViewProfileDTO> ViewProfile(int userId)
         {
             var cacheKey = $"user_profile_{userId}";
