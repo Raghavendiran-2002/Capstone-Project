@@ -175,7 +175,7 @@ namespace QuizApi.Services
                 throw new InvalidQuizCodeException("Invalid Quiz Code");
             }
 
-            if (!(quiz.StartTime < DateTime.Now & quiz.EndTime > DateTime.Now))
+            if (!(quiz.StartTime <= DateTime.Now & quiz.EndTime > DateTime.Now))
                 throw new QuizTimeException("Quiz Time Not Allowed");
 
 
